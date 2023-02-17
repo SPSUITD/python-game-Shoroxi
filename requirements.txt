@@ -1,0 +1,2 @@
+ursina==5.2.0
+#panda3D
