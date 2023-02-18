@@ -1,2 +1,3 @@
 ursina==5.2.0
+numpy==1.24.2
 #panda3D
