@@ -1,9 +1,16 @@
-# python-game-Shoroxi
-Шкарупа Глеб 2-мд-4
-Пришло время для дешевых инди хорроров
+# Шкарупа Глеб 2-мд-4
 
-Todo: trigger, sound, flashlight, fog, *hightmap to terrain!*, 
-scene loader, ui, interaction with obj.
+# Пришло время для дешевых инди хорроров
 
-OpenGL текстуры должен обрабатывать (2мап, мип мап, стриминг), а как им управлять незнаю.
-Проверить эмиссив материалов.
+Todo: 
+- trigger
+- sound
+- flashlight, ambientLight, 
+✅ fog
+✅ hightmap to terrain
+- scene loader
+✅ menu
+✅ interaction with obj
+- emissive obj (pickable props)
+
+OpenGL текстуры должен обрабатывать (2мап, мип мап, стриминг)
