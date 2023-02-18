@@ -22,7 +22,7 @@ if __name__ == '__main__':
     # False -> Fullscreen
 
     # MODELS
-    ground = Ul.LitObject(model='plane', position=(0, -0.2, 0), scale=(100, 1, 100), color=color.yellow.tint(-.2), texture='white_cube', texture_scale=(100, 100), collider='box')
+    ground = Ul.LitObject(model='plane', position=(0, -0.5, 0), scale=(100, 1, 100), color=color.yellow.tint(-.2), texture='white_cube', texture_scale=(100, 100), collider='box')
     # bar = Entity(model='Comb_Bar.obj', scale=(0.01,0.01,0.01), texture='white_cube', mode='triangle', collider='box', ambientStrength=1)
     cube = Ul.LitObject(model="cube", position=(0, 0.5, 1))
 
@@ -60,11 +60,18 @@ if __name__ == '__main__':
     mouse.visible = False
 
     # CAMERA
-    ec = ursina.EditorCamera(enabled=False, ignore_paused=True)
 
+
+    player = Player()
+    # def update(self):
+    #     player.update()
+    #
+    #     ursina.Animation()
+    #     pass
     # Realization interact with E
-    hookshot_target = ursina.Button(parent=ursina.scene, model='cube', color=color.brown, position=(4,5,5))
-    hookshot_target.on_click = ursina.Func(hookshot_target.animate_position, Player.position, duration=.5, curve=ursina.curve.linear)
+    hookshot_target = ursina.Button(parent=ursina.scene, model='cube', color=color.brown, position=Vec3(4,5,5))
+
+    ec = ursina.EditorCamera(enabled=False, ignore_paused=True)
 
     def pause_input(key):
         if key == 'tab':    # press tab to toggle edit/play mode
@@ -74,8 +81,10 @@ if __name__ == '__main__':
             ursina.application.paused = ec.enabled
         elif key == "escape":
             ursina.application.quit()
-        elif key == 'e':
-            ursina.destroy(hookshot_target, delay=1)
+        elif hookshot_target.on_mouse_enter and key == 'e':
+            hookshot_target.animate_position(value=player.position, duration=1, curve=ursina.curve.linear)
+
+            # ursina.destroy(hookshot_target, delay=1)
 
     pause_handler = Entity(ignore_paused=True, input=pause_input)
 
@@ -103,7 +112,7 @@ if __name__ == '__main__':
     #             loading_screen.enabled = False
     #             load_textures()
 
-    player = Player(ursina.Vec3(0, 1, 0))
+
     menu = MainMenu(player)
 
     app.run()

@@ -2,9 +2,8 @@ import ursina
 from ursina.prefabs.first_person_controller import FirstPersonController
 
 class Player(FirstPersonController):
-    def __init__(self, position: ursina.Vec3):
+    def __init__(self):
         super().__init__(
-            position=position,
             model="cube",
             jump_height=0.5,
             jump_duration=0.2,
