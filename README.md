@@ -12,5 +12,5 @@ Todo:
 ✅ menu
 ✅ interaction with obj
 - emissive obj (pickable props)
-
+![My Image](python_3shu4b6OpF.png)
 OpenGL текстуры должен обрабатывать (2мап, мип мап, стриминг)
