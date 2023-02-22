@@ -9,7 +9,7 @@ class Player(FirstPersonController):
             jump_duration=0.2,
             origin_y=-2,
             collider="box",
-            speed=5
+            speed=7
         )
         ursina.destroy(self.cursor)
         self.cursor = ursina.Cursor(

@@ -12,35 +12,42 @@ if __name__ == '__main__':
     window.title = "BarGame"
     # window.icon = ""
 
-    window.fps_counter = False
+    window.fps_counter = True
     window.cog_button = True
     window.always_on_top = False
     window.vsync = False
     window.borderless = True
 
-    app = ursina.Ursina(development_mode=False)
+    app = ursina.Ursina(development_mode=True)
     # False -> Fullscreen
 
     # MODELS
-    ground = Ul.LitObject(model='plane', position=(0, -0.5, 0), scale=(100, 1, 100), color=color.yellow.tint(-.2), texture='white_cube', texture_scale=(100, 100), collider='box')
-    # bar = Entity(model='Comb_Bar.obj', scale=(0.01,0.01,0.01), texture='white_cube', mode='triangle', collider='box', ambientStrength=1)
-    cube = Ul.LitObject(model="cube", position=(0, 0.5, 1))
+    # cube = Ul.LitObject(model="cube", position=(0, 0.5, 1))
+    land = Ul.LitObject(model='land.obj', scale=(0.01, 0.01, 0.01), position=(0, 0, 0), texture='white_cube', mode='triangle', collider="mesh", normalMap = None, specularMap = None)
+    land2 = Ul.LitObject(model='land2.obj', scale=(0.01, 0.01, 0.01), position=(0, 0, 0), texture='white_cube', mode='triangle', collider=None, normalMap = None, specularMap = None)
+    Pirate = Ul.LitObject(model='Pirate.obj', scale=(0.01, 0.01, 0.01), position=(0, 0, 0), texture='white_cube', mode='triangle', collider=None, normalMap=None, specularMap=None)
+    Welck = Ul.LitObject(model='Welck.obj', scale=(0.01, 0.01, 0.01), position=(0, 0, 0), texture='white_cube', mode='triangle', collider=None, normalMap=None, specularMap=None)
+    GOLD = Ul.LitObject(model='GOLD.obj', scale=(0.01, 0.01, 0.01), position=(0, 0, 0), texture='white_cube', mode='triangle', collider=None, normalMap=None, specularMap=None)
+    Cloud = Ul.LitObject(model='Cloud.obj', scale=(0.01, 0.01, 0.01), position=(0, 0, 0), texture='white_cube', mode='triangle', color=(255,255,255,200), collider=None, normalMap=None, specularMap=None)
+    Water = Ul.LitObject(model='Water.obj', scale=(0.01, 0.01, 0.01), position=(0, 0, 0), texture='white_cube', mode='triangle', color=(255,255,255,200), collider=None, normalMap=None, specularMap=None)
 
-    e = Ul.LitObject(model=ursina.Terrain('loddefjord_height_map', skip=8), texture='loddefjord_color', scale=100, scale_y=30)
+    e = Ul.LitObject(model=ursina.Terrain('loddefjord_height_map', skip=8), texture='loddefjord_color', scale=100, scale_y=30, normalMap=None, specularMap=None)
     e.model.save('loddefjord_terrain')
 
     # GRAPHIC
-    lit = Ul.LitInit()
-    sun = Ul.LitDirectionalLight(direction=Vec3(0), color=Vec3(1), intensity=1, shadows=True)
-    ursina.camera.clip_plane_far = 500
+    # lit = Ul.LitInit()
+    # sun = Ul.LitDirectionalLight(direction=Vec3(0), color=Vec3(1), intensity=1, shadows=True)
+    sky = ursina.Sky()
+    sun = Ul.LitDirectionalLight(direction=Vec3(0.5, -0.6, 1), intensity=0, color=color.gray)
+    ursina.camera.clip_plane_far = 3000
     ursina.camera.clip_plane_near = 5
 
     from ursina.shaders import basic_lighting_shader
-    from ursina.shaders.screenspace_shaders.ssao import ssao_shader
-    camera.shader = ssao_shader
+    # from ursina.shaders.screenspace_shaders.ssao import ssao_shader
+    # camera.shader = ssao_shader
 
     ursina.scene.fog_color = color.gray
-    ursina.scene.fog_density = 0.5
+    ursina.scene.fog_density = 0.1
 
     # lit_with_shadows_shader basic_lighting_shader
     for e in ursina.scene.entities:
@@ -89,7 +96,7 @@ if __name__ == '__main__':
     pause_handler = Entity(ignore_paused=True, input=pause_input)
 
 if __name__ == '__main__':
-
+    lit = Ul.LitInit()
     # LOADING SCREEN
     # _________________________________________________________________
     # loading_screen = LoadingWheel(enabled=False)
