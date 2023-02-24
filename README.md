@@ -6,16 +6,17 @@ Todo:
 - trigger
 - sound
 - flashlight, ambientLight
-✅ fog
-✅ hightmap to terrain
-✅ scene loader
+- ✅ fog
+- ✅ hightmap to terrain
+- ✅ scene loader
 - menu (Settings)
 - saving
-✅ raycast
+- ✅ raycast
 - story
 - npc
 - HUD +-
 - shader (pixeliozation / dizering)
+
 ниже показан скрин с сценой в 300к вертексов. карта будет другой
 ![My Image](python_3shu4b6OpF.png)
 
