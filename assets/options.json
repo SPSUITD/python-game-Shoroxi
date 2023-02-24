@@ -1,0 +1,17 @@
+{
+    "autodetect": false,
+    "aspect": [
+        16,
+        9
+    ],
+    "camera_fov": 80,
+    "waypoint_movement": false,
+    "current_language": "en",
+    "first_launch": true,
+    "mouse_sensitivity": 40,
+    "show_fps": true,
+    "window_size": [
+        1920,
+        1080
+    ]
+}
