@@ -18,22 +18,10 @@ sound_folder = "assets/sounds/"
 player_creature = my_json.read("assets/player")
 options_file = my_json.read("assets/options")
 # -----------
-# Игра начата
 gameplay = True
 game_session = None
 pause = True
 
-# Пресеты для цветов
-color_orange = color.rgb(238, 157, 49)
-color_red = color.rgb(232, 0, 0)
-color_green = color.rgb(40, 190, 56)
-color_gray = color.rgb(102, 98, 95)
-
-color_sky_day = color.rgb(74, 116, 159)
-color_sky_evening = color.rgb(57, 46, 61)
-color_sky_night = color.rgb(10, 10, 10)
-
-# получить класс игрока
 def get_player():
     if game_session:
         if game_session.player is not None:
@@ -90,7 +78,7 @@ class Player(Entity):
         self.crosshair_tip_text = "Demo"
 
         self.crosshair_tip = ui.UIText(parent=camera.ui, offset=(0.0015,0.0015), text=self.crosshair_tip_text, origin=(0, 0), y=0.04,
-                                       color=color_orange if setting.show_hud else self.hideHUD(), scale=1, x=0, z=-0.001)
+                                       color=setting.color_orange if setting.show_hud else self.hideHUD(), scale=1, x=0, z=-0.001)
         camera.parent = self.camera_pivot
         camera.position = (0, 0, 0)
         camera.rotation = (0, 0, 0)
@@ -111,8 +99,8 @@ class Player(Entity):
         self.air_time = 0
         # ---------------------------
 
-        from Shaders.cam_shader import pixel
-        camera.shader = pixel
+        from Shaders.cam_shader import empty_shader
+        camera.shader = empty_shader
         camera.set_shader_input("blur_size", 0.04)
         print(window.getConfigProperties())
 
@@ -141,12 +129,12 @@ class Player(Entity):
         self.press_f = ui.UIText("press [F]", parent=camera.ui,offset=(0.0018,0.0018), y=-0.35, enabled=False,
                                  color=color.white,origin=(0,0))
 
-        self.fps_counter = ui.UIText("", (0.0018, 0.0018), color=color_orange,
+        self.fps_counter = ui.UIText("", (0.0018, 0.0018), color=setting.color_orange,
                                      position=(window.right.x - 0.13, window.top.y - .1))
         # >> сообщение сбоку экрана
         self.msg = ui.UIText("", origin=(-.5, 0),offset=(0.0015, 0.0015), parent=camera.ui,
                              position=(window.left.x+0.02, 0),
-                             color=color_orange if setting.show_hud else self.hideHUD())
+                             color=setting.color_orange if setting.show_hud else self.hideHUD())
 
         # ------------------------------
         if setting.developer_mode:
@@ -156,7 +144,7 @@ class Player(Entity):
                                             position=Vec2(window.top_left.x + 0.02, window.top_left.y - 0.09),
                                             scale=Vec2(0.3, 0.35))
             # Текст на фоне
-            self.debug_text = Text(parent=camera.ui, text="null", color=color_orange if setting.show_hud else self.hideHUD(), origin=(-.5, .5),
+            self.debug_text = Text(parent=camera.ui, text="null", color=setting.color_orange if setting.show_hud else self.hideHUD(), origin=(-.5, .5),
                                    position=(window.top_left.x + 0.03, window.top_left.y - 0.095, -0.003))
 
         ### FLASHLIGHT
@@ -215,7 +203,7 @@ class Player(Entity):
     def load_location(self,level):
         self.steps_sound.play()
         camera.overlay.color = color.black
-        loading = Text("loading", origin=(0, 0), color=color_orange, always_on_top=True)
+        loading = Text("loading", origin=(0, 0), color=setting.color_orange, always_on_top=True)
 
         # destroy(get_current_level())
 
