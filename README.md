@@ -5,12 +5,18 @@
 Todo: 
 - trigger
 - sound
-- flashlight, ambientLight, 
-✅ fog
-✅ hightmap to terrain
-- scene loader
-✅ menu
-✅ interaction with obj
-- emissive obj (pickable props)
+- flashlight, ambientLight
+- ✅ fog
+- ✅ hightmap to terrain
+- ✅ scene loader
+- menu (Settings)
+- saving
+- ✅ raycast
+- story
+- npc
+- HUD +-
+- shader (pixeliozation / dizering)
 
-OpenGL текстуры должен обрабатывать (2мап, мип мап, стриминг)
+ниже показан скрин с сценой в 300к вертексов. карта будет другой
+![My Image](python_3shu4b6OpF.png)
+
