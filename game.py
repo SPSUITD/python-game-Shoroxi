@@ -99,8 +99,8 @@ class Player(Entity):
         self.air_time = 0
         # ---------------------------
 
-        from Shaders.cam_shader import empty_shader
-        camera.shader = empty_shader
+        from Shaders.cam_shader import ouline_shader
+        camera.shader = ouline_shader
         camera.set_shader_input("blur_size", 0.04)
         print(window.getConfigProperties())
 
@@ -147,44 +147,6 @@ class Player(Entity):
             self.debug_text = Text(parent=camera.ui, text="null", color=setting.color_orange if setting.show_hud else self.hideHUD(), origin=(-.5, .5),
                                    position=(window.top_left.x + 0.03, window.top_left.y - 0.095, -0.003))
 
-        ### FLASHLIGHT
-
-
-        # self.FlashlightNode = NodePath('Flashlight Node')
-        # self.FlashlightNode.reparentTo(camera)
-        #
-        # self.FlashlightLens = PerspectiveLens()
-        # self.FlashlightLens.setFov(25)
-        #
-        # self.Flashlight = PitoSpotLight()
-        # self.Flashlight._light.setLens(self.FlashlightLens)
-        # self.flashlight = PitoSpotLight(shadows=True,
-        #                                color=color.rgba(255, 255, 255, 1),
-        #                                position=(0, 0, 0),
-        #                                rotation=camera.rotation,
-        #                                distance=0.01,
-        #                                parent=camera,
-        #                                lens=self.FlashlightLens,
-        #                                name="flashlight",
-        #                                enabled=False)
-        #
-        # self.FlashlightNodePath = self.FlashlightNode.attachNewNode(self.flashlight._light)
-        #
-        # self.proj = render.attachNewNode(LensNode('proj'))
-        # self.proj.node().setLens(self.FlashlightLens)
-        #
-        # self.proj.reparentTo(self.FlashlightNode)
-        #
-        # self.tex = application.base.loader.loadTexture('assets/textures/flashlight.png')
-        # self.tex.setWrapU(SamplerState.WMClamp)
-        # self.tex.setWrapV(SamplerState.WMClamp)
-        # # self.tex.setBorderColor((1,1,1,0))
-        # self.ts = TextureStage('ts')
-        #
-        # render.projectTexture(self.ts, self.tex, self.proj)
-
-        # ПАРАМЕТРЫ ИГРОКА
-
         # ДИАПАЗОН ПОВОРОТА ПО [Y]
         self.rotation_range_y = [-180,180]
         # ----------------
@@ -201,7 +163,6 @@ class Player(Entity):
 
     # TODO: load next level
     def load_location(self,level):
-        self.steps_sound.play()
         camera.overlay.color = color.black
         loading = Text("loading", origin=(0, 0), color=setting.color_orange, always_on_top=True)
 
@@ -255,7 +216,9 @@ class Player(Entity):
         if not pause:
             if key == 'space':
                 self.jump()
-
+            if key == 'w':
+                camera.shake(duration=1, magnitude=2, speed=.8, direction=(0, 1))
+                self.steps_sound.play()
             if self.ray_hit.hit:
 
                 def getHitData():
@@ -269,8 +232,7 @@ class Player(Entity):
                         destroy(getHitData(), delay=1)
                     if getHitData().id == "npc":
                         pass
-                    if key == "w" and game_session:
-                        camera.shake(duration=1, magnitude=2, speed=.8, direction=(0, 1))
+
             if key == "escape" and not self.dialogue.enabled:
                 pass
 

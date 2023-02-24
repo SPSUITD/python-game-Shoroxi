@@ -1,0 +1,33 @@
+{
+  "weather_color": [74, 116, 159],
+  "level_data": [
+    {
+      "le_name": "Spawn point",
+      "id": "spawn_point",
+      "model": "sphere",
+      "position": [-1.91, 2, -14.44],
+      "rotation": [0, 30, 0],
+      "collider": null,
+      "scale": 1,
+      "color": [238, 157, 49, 128]
+    },
+    {
+      "le_name": "Gz_ground",
+      "model": "assets/levels/ai_test/gz_ground",
+      "texture": "",
+      "position": [0, 0, 0],
+      "rotation": [0, 0, 0],
+      "collider": "mesh",
+      "scale": 0.02
+    },
+    {
+      "le_name": "Gz_st",
+      "model": "assets/levels/ai_test/test_gaz_st",
+      "texture": "",
+      "position": [0, 0, 0],
+      "rotation": [0, 0, 0],
+      "collider": "",
+      "scale": 0.02
+    }
+  ]
+}

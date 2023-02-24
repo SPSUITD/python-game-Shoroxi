@@ -29,7 +29,7 @@ void main() {
 
 from ursina import *
 
-empty_shader = Shader(
+ouline_shader = Shader(
 vertex='''
 #version 130
 // Exactly nothing happens in vertex shading.
