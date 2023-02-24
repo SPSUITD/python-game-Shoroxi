@@ -16,5 +16,5 @@ developer_mode = False
 show_raycast_debug = True
 color_orange = color.rgb(238, 157, 49)
 game_font = "assets/fonts/fix.ttf"
-camera_move_speed = 10
-camera_fov = 80
+camera_move_speed = 1.7
+camera_fov = 105

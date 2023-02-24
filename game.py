@@ -121,6 +121,7 @@ class Player(Entity):
         self.strange_mouse = False
         # ---------------------------
         self.steps_sound = Audio(sound_folder+"walk", pitch=random.uniform(.5,1), autoplay=False, loop=False)
+        self.amb_sound = Audio(sound_folder+"amb2", pitch=random.uniform(.5,1), autoplay=False, loop=True)
 
         self.ray_hit = raycast(self.position + (self.down * 0.04), direction=(0, -1, 0), ignore=(self,), distance=50,
                                debug=False)
@@ -228,6 +229,7 @@ class Player(Entity):
                     # TODO del obj
                     if key == "f" and game_session:
                         invoke(self.raycast_once, delay=.05)
+                        # типа подобрал предмет (в итоге тригер удаляется)
                         getHitData().animate_position(value=self.position, duration=1, curve=curve.linear)
                         destroy(getHitData(), delay=1)
                     if getHitData().id == "npc":
@@ -245,10 +247,10 @@ class Player(Entity):
             self.direction = Vec3(camera.forward)
 
             # если мышь двигается
-            if self.mouse_control:
-                if mouse.velocity > 0 or mouse.velocity < 0:
-                    self.ray_hit = raycast(self.position, self.direction, ignore=(self,), distance=50,
-                                           debug=setting.show_raycast_debug)
+            # if self.mouse_control:
+            #     if mouse.velocity > 0 or mouse.velocity < 0:
+            #         self.ray_hit = raycast(self.position, self.direction, ignore=(self,), distance=50,
+            #                                debug=setting.show_raycast_debug)
                     # self.hit_pos_info.text = self.raycast_point_pos_text
 
             def setCrosshairTip(text):
@@ -284,8 +286,6 @@ class Player(Entity):
                 else:
                     self.cursor.color = color.white
             else:
-                if setting.developer_mode:
-                    self.hit_text = "None"
                 clearCrosshairText()
 
             if self.mouse_control:
@@ -318,8 +318,6 @@ class Player(Entity):
                     if raycast(self.position + Vec3(-.0, 1, 0), Vec3(0, 0, -1), distance=.5, ignore=(self,)).hit:
                         move_amount[2] = max(move_amount[2], 0)
                     self.position += move_amount
-
-
                     # self.position += self.direction * self.speed * time.dt
 
             if self.gravity:
@@ -341,9 +339,6 @@ class Player(Entity):
                 self.y -= min(self.air_time, ray.distance - .05) * time.dt * 100
                 self.air_time += time.dt * .25 * self.gravity
 
-
-
-
 # Главный класс игрового процесса
 class Gameplay(Entity):
     def __init__(self,level=None, **kwargs):
@@ -360,8 +355,7 @@ class Gameplay(Entity):
         self.current_level = Level(self.player, level_id=player_creature["start_level"] if level is None else level)
         # игровой процесс запущен
         gameplay = True
-
-        # цикл для проверки аргументов и изменение переменных
+        # цикл проверки аргументов и изменение переменных
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -387,9 +381,10 @@ class Level(Entity):
         # Если мы начали игру
         if os.path.isdir("assets/levels/" + str(self.level_id)):
             level_data = my_json.read("assets/levels/" + str(self.level_id) + "/level")
-            # Настраиваем цвет неба
             window.color = color.rgb(level_data["weather_color"][0], level_data["weather_color"][1],
                                      level_data["weather_color"][2])
+
+
 
             # Создаём объекты из папки с уровнем из файла level
             for obj in level_data["level_data"]:

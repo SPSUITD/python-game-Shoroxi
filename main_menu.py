@@ -56,6 +56,9 @@ class MainMenu(Entity):
         invoke(gm.Gameplay,level=level, delay=1)
         destroy(self)
         invoke(setattr, camera.overlay, 'color', color.clear, delay=2)
+
+        amb_sound = Audio(sound_folder + "amb2", pitch=random.uniform(.5, 1), autoplay=False, loop=True)
+        amb_sound.play()
         #invoke(story.show_intro_text,delay=2)
 
     def input(self, key):
