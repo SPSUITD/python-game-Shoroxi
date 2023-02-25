@@ -121,7 +121,8 @@ class Player(Entity):
         self.strange_mouse = False
         # ---------------------------
         self.steps_sound = Audio(sound_folder+"walk", pitch=random.uniform(.5,1), autoplay=False, loop=False)
-        self.amb_sound = Audio(sound_folder+"amb2", pitch=random.uniform(.5,1), autoplay=False, loop=True)
+        # autoplay - в меню будет тоже но зато без задержек
+        self.amb_sound = Audio(sound_folder+"amb2", pitch=random.uniform(.5,1), autoplay=True, loop=True)
 
         self.ray_hit = raycast(self.position + (self.down * 0.04), direction=(0, -1, 0), ignore=(self,), distance=50,
                                debug=False)
@@ -218,7 +219,8 @@ class Player(Entity):
             if key == 'space':
                 self.jump()
             if key == 'w':
-                camera.shake(duration=1, magnitude=2, speed=.8, direction=(0, 1))
+                # TODO: Fade in to shake
+                # camera.shake(duration=1, magnitude=2, speed=.8, direction=(0, 1))
                 self.steps_sound.play()
             if self.ray_hit.hit:
 
@@ -318,7 +320,6 @@ class Player(Entity):
                     if raycast(self.position + Vec3(-.0, 1, 0), Vec3(0, 0, -1), distance=.5, ignore=(self,)).hit:
                         move_amount[2] = max(move_amount[2], 0)
                     self.position += move_amount
-                    # self.position += self.direction * self.speed * time.dt
 
             if self.gravity:
                 ray = raycast(self.world_position + (0, self.height, 0), self.down, ignore=(self,))
