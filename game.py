@@ -71,87 +71,47 @@ class Player(Entity):
         super().__init__(
             model="cube",
             visible_self=False,
+            scale=(25,25,25)
         )
-        self.speed = setting.camera_move_speed
+        self.speed = 40
         self.camera_pivot = Entity(parent=self, y=1)
-        # текст под прицелом
-        self.crosshair_tip_text = "Demo"
-
-        self.crosshair_tip = ui.UIText(parent=camera.ui, offset=(0.0015,0.0015), text=self.crosshair_tip_text, origin=(0, 0), y=0.04,
-                                       color=setting.color_orange if setting.show_hud else self.hideHUD(), scale=1, x=0, z=-0.001)
         camera.parent = self.camera_pivot
         camera.position = (0, 0, 0)
         camera.rotation = (0, 0, 0)
-        camera.fov = setting.camera_fov
+        camera.fov = 105
         self.original_fov = camera.fov
         camera.clip_plane_near = 0.06
         camera.clip_plane_far = 500
 
         mouse.locked = setting.cursor_lock
         # ---------------------------
-        self.height = 2
+        self.height = 165
         self.gravity = 1
         self.grounded = False
         self.jump_height = 2
         self.jump_up_duration = .5
-        self.fall_after = .35 # will interrupt jump up
+        self.fall_after = .35
         self.jumping = False
         self.air_time = 0
         # ---------------------------
-
-        from Shaders.cam_shader import ouline_shader
-        camera.shader = ouline_shader
-        camera.set_shader_input("blur_size", 0.04)
-        print(window.getConfigProperties())
-
-        # ---------------------------
-        # дебаг рейкаста (луча столкновения) в режиме разработчика
-        self.hit_text = "None"
-        self.raycast_point_pos_text = ""
-        self.hit_pos_info = Text("", y=0.1, origin=(0, 0))
+        # Постараюсь сделать текстуры и видимо добавлю пискилизацию
+        # from shaders.camera_shader import ouline_shader
+        # camera.shader = ouline_shader
+        # camera.set_shader_input("blur_size", 0.04)
+        # print(window.getConfigProperties())
         # ---------------------------
         self.mouse_sensitivity = Vec2(options_file["mouse_sensitivity"], options_file["mouse_sensitivity"])
-        self.rot_array_x = []
-        self.rot_average_x = 0.0
-        self.rot_array_y = []
-        self.rot_average_y = 0.0
-        self.rot_x = 0
-        self.rot_y = 0
-        self.frame_count = 2
-        self.strange_mouse = False
         # ---------------------------
+        # TODO: OpenAL or panda sound
         self.steps_sound = Audio(sound_folder+"walk", pitch=random.uniform(.5,1), autoplay=False, loop=False)
-        # autoplay - в меню будет тоже но зато без задержек
         self.amb_sound = Audio(sound_folder+"amb2", pitch=random.uniform(.5,1), autoplay=True, loop=True)
-
-        self.ray_hit = raycast(self.position + (self.down * 0.04), direction=(0, -1, 0), ignore=(self,), distance=50,
-                               debug=False)
-        self.scope = None
-
-        self.press_f = ui.UIText("press [F]", parent=camera.ui,offset=(0.0018,0.0018), y=-0.35, enabled=False,
-                                 color=color.white,origin=(0,0))
-
-        self.fps_counter = ui.UIText("", (0.0018, 0.0018), color=setting.color_orange,
-                                     position=(window.right.x - 0.13, window.top.y - .1))
-        # >> сообщение сбоку экрана
-        self.msg = ui.UIText("", origin=(-.5, 0),offset=(0.0015, 0.0015), parent=camera.ui,
-                             position=(window.left.x+0.02, 0),
-                             color=setting.color_orange if setting.show_hud else self.hideHUD())
-
-        # ------------------------------
-        if setting.developer_mode:
-
-            self.debug_info_window = Entity(parent=camera.ui, model=Quad(radius=.03), color=color.rgba(10, 10, 10, 200) if setting.show_hud else self.hideHUD(),
-                                            origin=(-.5, .5),
-                                            position=Vec2(window.top_left.x + 0.02, window.top_left.y - 0.09),
-                                            scale=Vec2(0.3, 0.35))
-            # Текст на фоне
-            self.debug_text = Text(parent=camera.ui, text="null", color=setting.color_orange if setting.show_hud else self.hideHUD(), origin=(-.5, .5),
-                                   position=(window.top_left.x + 0.03, window.top_left.y - 0.095, -0.003))
-
-        # ДИАПАЗОН ПОВОРОТА ПО [Y]
+        # ---------------------------
+        self.ray_hit = raycast(self.position + (self.down * 0.04), direction=(0, -1, 0), ignore=(self,), distance=50, debug=False)
+        # ---------------------------
+        self.press_f = ui.UIText("press [F]", parent=camera.ui,offset=(0.0018,0.0018), y=-0.35, enabled=False, color=color.white,origin=(0,0))
+        self.fps_counter = ui.UIText("", (0.0018, 0.0018), color=setting.color_orange, position=(window.right.x - 0.13, window.top.y - .1))
+        # ---------------------------
         self.rotation_range_y = [-180,180]
-        # ----------------
         self.transition_trigger = None
         self.mouse_control = True
         self.panel_opened = False
@@ -163,7 +123,6 @@ class Player(Entity):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    # TODO: load next level
     def load_location(self,level):
         camera.overlay.color = color.black
         loading = Text("loading", origin=(0, 0), color=setting.color_orange, always_on_top=True)
@@ -171,7 +130,7 @@ class Player(Entity):
         # destroy(get_current_level())
 
         invoke(set_current_level,level,delay=2)
-        self.set_crosshair(True)
+        self.set_crosshair()
         self.raycast_once()
         invoke(setattr, camera.overlay, 'color', color.clear, delay=2)
         destroy(loading, delay=2)
@@ -187,13 +146,8 @@ class Player(Entity):
     def get_player_pos(self):
         return self.position
 
-    def set_crosshair(self,b):
-        if not b:
-            self.crosshair_tip.disable()
-            self.press_f.disable()
-        else:
-            self.crosshair_tip.enable()
-            self.press_f.enable()
+    def set_crosshair(self):
+        self.press_f.enable()
 
     def jump(self):
         if not self.grounded:
@@ -207,7 +161,6 @@ class Player(Entity):
         self.jumping = False
 
     def land(self):
-        # print('land')
         self.air_time = 0
         self.grounded = True
 
@@ -253,7 +206,7 @@ class Player(Entity):
             #     if mouse.velocity > 0 or mouse.velocity < 0:
             #         self.ray_hit = raycast(self.position, self.direction, ignore=(self,), distance=50,
             #                                debug=setting.show_raycast_debug)
-                    # self.hit_pos_info.text = self.raycast_point_pos_text
+            # self.hit_pos_info.text = self.raycast_point_pos_text
 
             def setCrosshairTip(text):
                 self.crosshair_tip_text = text
@@ -271,9 +224,6 @@ class Player(Entity):
             # РЭЙКАСТИНГ, ВЗАИМОДЕЙСТВИЕ С МИРОМ
             if self.ray_hit.hit:
                 if getHitData() is not None:
-
-                    # if setting.developer_mode:
-                    #     self.hit_text = getHitData() if getHitData() else "None"
 
                     if getHitData().id == "transition" or getHitData().id == "transition_to_level":
                         setCrosshairTip("interact.go")
@@ -296,9 +246,6 @@ class Player(Entity):
                 self.camera_pivot.rotation_x -= mouse.velocity[1] * self.mouse_sensitivity[0]
                 self.camera_pivot.rotation_x = clamp(self.camera_pivot.rotation_x, -30, 30) if not setting.developer_mode else clamp(self.camera_pivot.rotation_x, -90, 90)
 
-                if not self.scope:
-                    self.crosshair_tip.setText(self.crosshair_tip_text)
-
                 self.direction = Vec3(
                     self.forward * (held_keys['w'] - held_keys['s'])
                     + self.right * (held_keys['d'] - held_keys['a'])
@@ -320,7 +267,7 @@ class Player(Entity):
                     if raycast(self.position + Vec3(-.0, 1, 0), Vec3(0, 0, -1), distance=.5, ignore=(self,)).hit:
                         move_amount[2] = max(move_amount[2], 0)
                     self.position += move_amount
-
+            # TODO: возможно заменим физику на panda3d.Bullet
             if self.gravity:
                 ray = raycast(self.world_position + (0, self.height, 0), self.down, ignore=(self,))
                 # ray = boxcast(self.world_position+(0,2,0), self.down, ignore=(self,))
@@ -335,7 +282,8 @@ class Player(Entity):
                     return
                 else:
                     self.grounded = False
-
+                # TODO: NEW FALL PHYSICS + Running
+                # от этого управление будет чувствоваться живей
                 # if not on ground and not on way up in jump, fall
                 self.y -= min(self.air_time, ray.distance - .05) * time.dt * 100
                 self.air_time += time.dt * .25 * self.gravity
@@ -344,7 +292,6 @@ class Player(Entity):
 class Gameplay(Entity):
     def __init__(self,level=None, **kwargs):
         super().__init__()
-        # Глобальные переменные для изменения
         global gameplay
         global game_session
 
@@ -354,26 +301,19 @@ class Gameplay(Entity):
         # передаём ссылку с созданным гг в уровень для дальнейшего доступа к классу гг
         invoke(self.player.load_location, player_creature["start_level"] if level is None else level,delay=0.00001)
         self.current_level = Level(self.player, level_id=player_creature["start_level"] if level is None else level)
-        # игровой процесс запущен
         gameplay = True
-        # цикл проверки аргументов и изменение переменных
         for key, value in kwargs.items():
             setattr(self, key, value)
-
-    # получить идентификатор текущего уровня
-    def get_level(self):
-        return self.current_level.level_id
 
 # Класс уровня
 class Level(Entity):
     def __init__(self, p, **kwargs):
         super().__init__()
-        # текстовый идентификатор уровня
         self.level_id = None
-        # ссылка на существующего гг
-        self.player_data = p
         self.with_light = False
         self.level_objects = []
+
+        self.player_data = p
         self.spawn_point = None
 
         for key, value in kwargs.items():
@@ -382,10 +322,7 @@ class Level(Entity):
         # Если мы начали игру
         if os.path.isdir("assets/levels/" + str(self.level_id)):
             level_data = my_json.read("assets/levels/" + str(self.level_id) + "/level")
-            window.color = color.rgb(level_data["weather_color"][0], level_data["weather_color"][1],
-                                     level_data["weather_color"][2])
-
-
+            window.color = color.rgb(level_data["weather_color"][0], level_data["weather_color"][1], level_data["weather_color"][2])
 
             # Создаём объекты из папки с уровнем из файла level
             for obj in level_data["level_data"]:
@@ -438,10 +375,6 @@ class Level(Entity):
                             break
 
                     lvl_obj.setLight(lvl_obj.attachNewNode(_light))
-
-                # scene.fog_density = 0.001
-                # scene.fog_color = color.rgb(level_data["weather_color"][0], level_data["weather_color"][1],
-                #                      level_data["weather_color"][2])
 
                 # присваиваем ему все ключи из файла с уровнем
                 lvl_obj.keys = obj

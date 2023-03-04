@@ -60,6 +60,7 @@ if __name__ == "__main__":
 
     color_sky_night2 = color.rgb(40, 40, 40)
     color_sky_night = color.rgb(10, 10, 10)
+
     DL = Entity()
     DirectionalLight(parent=DL, y=35, rotation=(45, 0, 0), shadows=True)
     # PointLight(parent=DL, position=load_scene.player.camera_pivot,direction=Vec3(camera.forward), color=(0,0.5,0,0), shadows=True)

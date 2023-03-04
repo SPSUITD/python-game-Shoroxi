@@ -2,23 +2,31 @@
 
 # Пришло время для дешевых инди хорроров
 
-Todo: 
-- trigger
-- ✅ sound
+TODO: 
+- ✅ story (те самые гуманитарии работающие в ночные смены, в подольске)
+
+
+- ✅ hightmap to terrain (убрал пока)
+- ✅ scene loader
+- ~~saving~~
+
+
+- ✅ raycast
+- ✅ menu (Settings not finished)
+- npc + dialogue system
+- ~~HUD~~
+
+
+- ✅ shader (может изменим/уберем)
 - flashlight, ambientLight
 - ✅ fog
-- ✅ hightmap to terrain
-- ✅ scene loader
-- ✅ menu (Settings)
-- saving?
-- ✅ raycast
-- story
-- npc
-- HUD +-
-- ✅ shader (может изменим/уберем)
 
-звук отстает - шагам поставить fadeout
-хождение вперед (нажатие) меняет позицию персонажа - недоделанная тряска экрана
+
+- OpenAL (3d sound)
+
+panda3d :
+- new jump physics + running (управление станет более живым. )
+- dragging
+- trigger (ghosting)
 
 ![My Image](screen.png)
-

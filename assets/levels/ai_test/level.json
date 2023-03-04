@@ -12,13 +12,23 @@
       "color": [238, 157, 49, 128]
     },
     {
+      "le_name": "VO",
+      "model": "assets/levels/ai_test/VO",
+      "texture": "",
+      "color" : [255,255,255],
+      "position": [0, 0, 0],
+      "rotation": [0, 0, 0],
+      "collider": "mesh",
+      "scale": 0.5
+    },
+    {
       "le_name": "Gz_ground",
       "model": "assets/levels/ai_test/gz_ground",
       "texture": "",
       "position": [0, 0, 0],
       "rotation": [0, 0, 0],
       "collider": "mesh",
-      "scale": 0.02
+      "scale": 0.5
     },
     {
       "le_name": "Gz_st",
@@ -27,7 +37,7 @@
       "position": [0, 0, 0],
       "rotation": [0, 0, 0],
       "collider": "",
-      "scale": 0.02
+      "scale": 0.5
     }
   ]
 }
