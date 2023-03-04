@@ -9,16 +9,16 @@ Todo:
 - ✅ fog
 - ✅ hightmap to terrain
 - ✅ scene loader
-- ✅ menu (Settings)
-- saving?
+- ✅ menu (Settings not finished)
+- ~~saving~~
 - ✅ raycast
-- story
-- npc
-- HUD +-
+- ✅ story
+- npc + dialode system
+- ~~HUD~~
 - ✅ shader (может изменим/уберем)
-
-звук отстает - шагам поставить fadeout
-хождение вперед (нажатие) меняет позицию персонажа - недоделанная тряска экрана
+- OpenAL (3d sound)
+- new jump physics
+- dragging
 
 ![My Image](screen.png)
 
