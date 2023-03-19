@@ -24,9 +24,9 @@ TODO:
 - Textures: Ai+marmoset 
 - OpenAL (3d sound)
 
-~~panda3d :
-~- new jump physics + running (управление станет более живым)
-~- dragging
+~~panda3d :~~
+~~- new jump physics + running (управление станет более живым)~~
+~~- dragging~~
 - trigger (ghosting)
 
 ![My Image](screen.png)
