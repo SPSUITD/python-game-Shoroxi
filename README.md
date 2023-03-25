@@ -2,31 +2,27 @@
 
 # Пришло время для дешевых инди хорроров
 
-TODO: 
-- ✅ story (те самые гуманитарии работающие в ночные смены, в подольске)
-
-
+Code: 
+- ✅ сценарий (те самые гуманитарии работающие в ночные смены, в подольске)
 - ✅ hightmap to terrain (убрал пока)
 - ✅ scene loader
-- ~~saving~~
-
-
 - ✅ raycast
 - ✅ menu (Settings not finished)
 - npc + dialogue system
-- ~~HUD~~
-
-
 - ✅ shader (может изменим/уберем)
-- flashlight, ambientLight
+- flashlight, ambientLight, spotlight
 - ✅ fog
-
-- Textures: Ai+marmoset 
 - OpenAL (3d sound)
+- trigger (ghosting)
 
+- ~~HUD~~
+- ~~saving~~
 ~~panda3d :~~
 ~~- new jump physics + running (управление станет более живым)~~
 ~~- dragging~~
-- trigger (ghosting)
+
+Scene:
+- Textures: ~~Ai(blender)~~ + mtb/asp
+- Animation (obj seq)
 
 ![My Image](screen.png)
