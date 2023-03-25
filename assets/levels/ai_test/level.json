@@ -1,21 +1,56 @@
 {
   "weather_color": [74, 116, 159],
+  "sound": [
+    {
+      "type": "amb",
+      "position": [1, 2, 1],
+      "distance": 0.05,
+      "volume": 1
+    }
+  ],
+  "light": [
+    {
+      "type": "point",
+      "position": [1, 2, 1],
+      "rotation": [0, 90, 0],
+      "distance": 0.05,
+      "shadows": true,
+      "color": [100, 100, 100]
+    },
+    {
+      "id": "npc_shadow_fill",
+      "position": [5.92, 2.76, -4.9],
+      "rotation": [0, 0, 0],
+      "color": [61, 40, 12]
+    },
+    {
+      "id": "interior_shadow_fill",
+      "position": [0, 0, 0],
+      "rotation": [0, 0, 0],
+      "color": [38, 25, 8]
+    },
+    {
+      "id": "exterior_shadow_fill",
+      "position": [0, 0, 0],
+      "rotation": [0, 0, 0],
+      "color": [17, 11, 3]
+    }
+  ],
   "level_data": [
     {
       "le_name": "Spawn point",
       "id": "spawn_point",
       "model": "sphere",
-      "position": [-1.91, 2, -14.44],
+      "position": [-1.91, 1, -14.44],
       "rotation": [0, 30, 0],
       "collider": null,
       "scale": 1,
       "color": [238, 157, 49, 128]
     },
     {
-      "le_name": "VO",
-      "model": "assets/levels/ai_test/VO",
-      "texture": "",
-      "color" : [255,255,255],
+      "le_name": "amb",
+      "model": "assets/levels/ai_test/gz_ground",
+      "texture": null,
       "position": [0, 0, 0],
       "rotation": [0, 0, 0],
       "collider": "mesh",
@@ -24,7 +59,7 @@
     {
       "le_name": "Gz_ground",
       "model": "assets/levels/ai_test/gz_ground",
-      "texture": "",
+      "texture": null,
       "position": [0, 0, 0],
       "rotation": [0, 0, 0],
       "collider": "mesh",
@@ -33,7 +68,7 @@
     {
       "le_name": "Gz_st",
       "model": "assets/levels/ai_test/test_gaz_st",
-      "texture": "",
+      "texture": null,
       "position": [0, 0, 0],
       "rotation": [0, 0, 0],
       "collider": "",

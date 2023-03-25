@@ -25,16 +25,16 @@ class MainMenu(Entity):
     def __init__(self):
         super().__init__(parent=camera.ui, z=-0.001)
         global scene
-        self.click_sound = Audio(sound_folder + "click", autoplay=False, loop=False)
         scene = self
+        self.click_sound = Audio(sound_folder + "click", autoplay=False, loop=False)
         self.main_menu = Entity(parent=self, enabled=True)
         Entity(parent=self.main_menu, model="quad", color=rgb(2, 2, 0), scale=2)
         Sprite(parent=self.main_menu, texture=bg_mm, y=0.1, scale=0.5)
         self.menu_punkt = Text(parent=self.main_menu, text="← {0} →".format(menu_buttons_list[menu_buttons_counter]),
                                origin=(0, 0), y=-0.4,
                                color=setting.color_orange)
-        # TODO: Тут какой-то баг.
-        self.ShowMessageBox("Test message box", "Test caption for this message window!","info")
+        # TODO: Тут какой-то баг. не отвечает ввод
+        self.ShowMessageBox("Приложение в разработке", "Test caption for this message window!","info")
 
     def ShowMessageBox(self, title, caption, type="info"):
         msg = ui.MessageBox(title, caption, type)
@@ -56,22 +56,18 @@ class MainMenu(Entity):
         invoke(gm.Gameplay,level=level, delay=1)
         destroy(self)
         invoke(setattr, camera.overlay, 'color', color.clear, delay=2)
-
-        amb_sound = Audio(sound_folder + "amb2", pitch=random.uniform(.5, 1), autoplay=False, loop=True)
-        amb_sound.play()
+        self.ignore_input = False
         #invoke(story.show_intro_text,delay=2)
 
     def input(self, key):
         global menu_buttons_counter
         if self.main_menu.enabled:
-            # Если нажали А то переключили пункт меню
             if key == "a" or key == "left arrow":
                 self.click_sound.play()
                 if menu_buttons_counter > 0:
                     menu_buttons_counter = menu_buttons_counter - 1
                 else:
                     menu_buttons_counter = 3
-            # Если нажали D то переключили пункт меню
             if key == "d" or key == "right arrow":
                 self.click_sound.play()
                 if menu_buttons_counter < 3:
@@ -79,18 +75,14 @@ class MainMenu(Entity):
                 else:
                     menu_buttons_counter = 0
 
-            # Если нажали ENTER выбрав какой-то пункт меню, делаем действие
             if key == "enter":
                 if menu_buttons_counter == 0:
-                    self.StartNewGame("intro")
+                    self.StartNewGame()
                 if menu_buttons_counter == 1:
                     self.main_menu.enabled = False
                     Options().options_menu.enabled = True
                 if menu_buttons_counter == 2: application.quit()
-
-            # Обновлять текст пунктов меню
             self.menu_punkt.text = "← {0} →".format(menu_buttons_list[menu_buttons_counter])
-
 
 class Options(Entity):
     def __init__(self):

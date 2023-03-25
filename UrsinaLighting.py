@@ -24,19 +24,19 @@ class LitInit(Entity):
 
 
 class LitObject(Entity):
-    def __init__(self, model = 'plane', scale = 1, position = (0, 0, 0), rotation = (0, 0, 0), texture = None, collider = None,
-                 color = rgb(255, 255, 255), tiling = Vec2(1), lightDirection = Vec3(0), lightColor = Vec3(1),
-                 smoothness = 128, ambientStrength = 0.1, normalMap = None, specularMap = None, water = False, cubemap = "Textures/cubemap_#.jpg", cubemapIntensity = 0.5,
-                 onUpdate = lambda self: None, **kwargs):
+    def __init__(self, model='plane', scale=1, position=(0, 0, 0), rotation=(0, 0, 0), texture=None, collider=None,
+                 color=rgb(255, 255, 255), tiling=Vec2(1), lightDirection=Vec3(0), lightColor=Vec3(1),
+                 smoothness=128, ambientStrength=0.1, normalMap=None, specularMap=None, water=False, cubemap="Textures/cubemap_#.jpg", cubemapIntensity=0.5,
+                 onUpdate=lambda self: None, **kwargs):
         super().__init__(
-            shader = LitShader,
-            model = model,
-            collider = collider,
-            position = position,
-            rotation = rotation,
-            scale = scale,
-            texture = texture,
-            color = color,
+            shader=LitShader,
+            model=model,
+            collider=collider,
+            position=position,
+            rotation=rotation,
+            scale=scale,
+            texture=texture,
+            color=color,
         )
 
         for key, value in kwargs.items():

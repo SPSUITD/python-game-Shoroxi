@@ -1,6 +1,5 @@
 from ursina import *
 from ursina import curve
-from panda3d.core import *
 from ursina.shaders import *
 import callbacks
 import ui
@@ -9,6 +8,8 @@ import os.path
 import my_json
 import main_menu
 import cmd
+from panda_light import *
+from openal import *
 
 tex_folder = "assets/textures/"
 mesh_folder = "assets/models/"
@@ -50,6 +51,7 @@ def get_current_level():
     else:
         return None
 
+
 # запустить новый уровень по id из папки levels
 def set_current_level(lvl):
     if game_session:
@@ -82,7 +84,6 @@ class Player(Entity):
         self.original_fov = camera.fov
         camera.clip_plane_near = 0.06
         camera.clip_plane_far = 500
-
         mouse.locked = setting.cursor_lock
         # ---------------------------
         self.height = 165
@@ -102,9 +103,11 @@ class Player(Entity):
         # ---------------------------
         self.mouse_sensitivity = Vec2(options_file["mouse_sensitivity"], options_file["mouse_sensitivity"])
         # ---------------------------
-        # TODO: OpenAL or panda sound
+        listener = Listener()
+        listener.set_position(self.position)
+        listener.set_gain(1)
+        # TODO: 3d sound for steps
         self.steps_sound = Audio(sound_folder+"walk", pitch=random.uniform(.5,1), autoplay=False, loop=False)
-        self.amb_sound = Audio(sound_folder+"amb2", pitch=random.uniform(.5,1), autoplay=True, loop=True)
         # ---------------------------
         self.ray_hit = raycast(self.position + (self.down * 0.04), direction=(0, -1, 0), ignore=(self,), distance=50, debug=False)
         # ---------------------------
@@ -172,28 +175,29 @@ class Player(Entity):
             if key == 'space':
                 self.jump()
             if key == 'w':
-                # TODO: Fade in to shake
+                # TODO: add Fade
                 # camera.shake(duration=1, magnitude=2, speed=.8, direction=(0, 1))
+
                 self.steps_sound.play()
+
             if self.ray_hit.hit:
 
                 def getHitData():
                     return self.ray_hit.entity
 
                 if getHitData() and getHitData().id is not None:
-                    # TODO del obj
-                    if key == "f" and game_session:
-                        invoke(self.raycast_once, delay=.05)
-                        # типа подобрал предмет (в итоге тригер удаляется)
-                        getHitData().animate_position(value=self.position, duration=1, curve=curve.linear)
-                        destroy(getHitData(), delay=1)
+                    if getHitData().id == "loot":
+                        if key == "f" and game_session:
+                            invoke(self.raycast_once, delay=.05)
+                            getHitData().animate_position(value=self.position, duration=1, curve=curve.linear)
+                            destroy(getHitData(), delay=1)
                     if getHitData().id == "npc":
                         pass
 
             if key == "escape" and not self.dialogue.enabled:
                 pass
 
-    # ФУНКЦИЯ ОБНОВЛЕНЯ ДЛЯ КАЖДОГО КАДРА
+    # ФУНКЦИЯ ОБНОВЛЕНИЯ ДЛЯ КАЖДОГО КАДРА
     def update(self):
         if not pause:
 
@@ -220,7 +224,6 @@ class Player(Entity):
                 if self.ray_hit.hit:
                     return self.ray_hit.entity
 
-
             # РЭЙКАСТИНГ, ВЗАИМОДЕЙСТВИЕ С МИРОМ
             if self.ray_hit.hit:
                 if getHitData() is not None:
@@ -228,10 +231,10 @@ class Player(Entity):
                     if getHitData().id == "transition" or getHitData().id == "transition_to_level":
                         setCrosshairTip("interact.go")
 
-                    # TODO: nk for loot items
+                    # TODO: name key for loot items
                     if getHitData().id == "loot":
                         setCrosshairTip("interact.loot")
-
+                    # TODO: dialogue system
                     if getHitData().id == "" or getHitData().id is None:
                         clearCrosshairText()
 
@@ -248,8 +251,7 @@ class Player(Entity):
 
                 self.direction = Vec3(
                     self.forward * (held_keys['w'] - held_keys['s'])
-                    + self.right * (held_keys['d'] - held_keys['a'])
-                ).normalized()
+                    + self.right * (held_keys['d'] - held_keys['a'])).normalized()
 
                 feet_ray = raycast(self.position + Vec3(0, 0.5, 0), self.direction, ignore=(self,), distance=.5,
                                    debug=False)
@@ -267,7 +269,7 @@ class Player(Entity):
                     if raycast(self.position + Vec3(-.0, 1, 0), Vec3(0, 0, -1), distance=.5, ignore=(self,)).hit:
                         move_amount[2] = max(move_amount[2], 0)
                     self.position += move_amount
-            # TODO: возможно заменим физику на panda3d.Bullet
+
             if self.gravity:
                 ray = raycast(self.world_position + (0, self.height, 0), self.down, ignore=(self,))
                 # ray = boxcast(self.world_position+(0,2,0), self.down, ignore=(self,))
@@ -316,6 +318,8 @@ class Level(Entity):
         self.player_data = p
         self.spawn_point = None
 
+
+
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -323,13 +327,43 @@ class Level(Entity):
         if os.path.isdir("assets/levels/" + str(self.level_id)):
             level_data = my_json.read("assets/levels/" + str(self.level_id) + "/level")
             window.color = color.rgb(level_data["weather_color"][0], level_data["weather_color"][1], level_data["weather_color"][2])
+            #TODO: sound
+            for sounds in level_data["sound"]:
+                if sounds["type"] == "amb":
+                    oalQuit()
+                    Source = oalOpen(sound_folder + "amb2.wav")
+                    # Source.set_gain(value)
+                    # Source.set_max_distance(value)
+                    # Source.set_position([0, 0, 0])
+                    # Source.set_looping(value)
+                    Source.play()
+                    print("Playing at: {0}".format(Source.position))
+
+                elif sounds["type"] == "loop":
+                    Source = oalOpen(sound_folder + "amb2.wav", position=sounds["position"])
 
             # Создаём объекты из папки с уровнем из файла level
             for obj in level_data["level_data"]:
+                if "light" in level_data:
+                    for light in level_data["light"]:
+                        # TODO: other types
+                        if light["type"] == "point":
+                            l = PitoSpotLight(shadows=light["shadows"],
+                                       colour=color.rgba(light["color"][0],light["color"][1],light["color"][2],.1),
+                                       position=light["position"],
+                                       rotation=light["rotation"],
+                                       distance=light["distance"],
+                                       parent=self,
+                                       name=light["name"] if "name" in light else "pito_light")
+                            l.keys = light
+                            if "animation" in light:
+                                if light["animation"] == "fire":
+                                    pass
+                            self.level_objects.append(l)
+                            break
 
-                # если в объекте уровня есть ключ ID и его параметр spawn_point
                 if "id" in obj:
-                    # Присваиваем начальную позицию гг, равную позиции спавн точки
+
                     if obj["id"] == "spawn_point":
                         get_player().position = obj["position"]
                         self.spawn_point = obj
@@ -338,13 +372,11 @@ class Level(Entity):
                         Animation(tex_folder + obj["sequence"], position=obj["position"], rotation=obj["rotation"],
                                   scale=obj["scale"],parent=self)
 
-
                     if obj["id"] == "text":
                         Text(parent=scene, text=obj["string"], position=obj["position"],
                              rotation_y=get_player().rotation.y,
                              scale=obj["scale"])
 
-                # Cоздаём объект
                 lvl_obj = LevelObject(parent=self, model=obj["model"] if "model" in obj else "cube",
                                       texture=obj["texture"] if "texture" in obj else None,
                                       rotation=obj["rotation"] if "rotation" in obj else (0,0,0),
@@ -361,6 +393,9 @@ class Level(Entity):
                 if "collider" in obj and obj["collider"]:
                     lvl_obj.collider = obj["collider"]
 
+                # if "sound" in obj and obj["sound"]:
+                #     lvl_obj.sound = obj["sound"]
+
                 if "name" in obj and obj["name"]:
                     lvl_obj.name = obj["name"]
 
@@ -369,12 +404,14 @@ class Level(Entity):
 
                 if "ambient" in obj:
                     _light = PandaAmbientLight('ambient_light')
-                    for l in level_data["light"]:
-                        if "id" in l and l["id"] == obj["ambient"]:
-                            _light.setColor(color.rgba(l["color"][0],l["color"][1],l["color"][2],1))
+                    for light in level_data["light"]:
+                        if "id" in light and light["id"] == obj["ambient"]:
+                            _light.setColor(color.rgba(light["color"][0],light["color"][1],light["color"][2],1))
                             break
-
                     lvl_obj.setLight(lvl_obj.attachNewNode(_light))
+
+                scene.fog_density = 0.010
+                scene.fog_color = color.rgb(level_data["weather_color"][0], level_data["weather_color"][1], level_data["weather_color"][2])
 
                 # присваиваем ему все ключи из файла с уровнем
                 lvl_obj.keys = obj
