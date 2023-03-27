@@ -5,9 +5,11 @@ import main_menu
 from game import Player
 from game import Gameplay
 from game import Level
+from game import Trigger
 
 import my_json
 import os.path
+import os
 
 options = None
 

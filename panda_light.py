@@ -7,7 +7,7 @@ from panda3d.core import AmbientLight as PandaAmbientLight
 from panda3d.core import Spotlight as PandaSpotLight
 
 
-class PitoLight(Entity):
+class Light(Entity):
     def __init__(self, **kwargs):
         super().__init__(rotation_x=90)
 
@@ -20,7 +20,7 @@ class PitoLight(Entity):
         self._color = value
         self._light.setColor(value)
 
-class PitoDirectionalLight(Light):
+class DirectionalLight(Light):
     def __init__(self, shadows=True, **kwargs):
         super().__init__()
         self._light = PandaDirectionalLight('directional_light')
@@ -31,7 +31,6 @@ class PitoDirectionalLight(Light):
             setattr(self, key,value)
 
         invoke(setattr, self, 'shadows', shadows, delay=.1)
-
 
     @property
     def shadows(self):
@@ -50,7 +49,7 @@ class PitoDirectionalLight(Light):
         else:
             self._light.set_shadow_caster(False)
 
-class PitoPointLight(Light):
+class PointLight(Light):
     def __init__(self,distance=1,colour=(1,1,1,1), **kwargs):
         super().__init__()
         self.keys = None
@@ -64,7 +63,7 @@ class PitoPointLight(Light):
         for key, value in kwargs.items():
             setattr(self, key,value)
 
-class PitoAmbientLight(Light):
+class AmbientLight(Light):
     def __init__(self,colour=(1,1,1,1), **kwargs):
         super().__init__()
         self.keys = None
@@ -75,7 +74,7 @@ class PitoAmbientLight(Light):
         for key, value in kwargs.items():
             setattr(self, key,value)
 
-class PitoSpotLight(Light):
+class SpotLight(Light):
     def __init__(self, **kwargs):
         super().__init__(distance=0.01, color=color.red, exponent=50)
         self.keys = None
