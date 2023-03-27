@@ -22,7 +22,7 @@ Code:
 ~~- dragging~~
 
 Scene:
-- Textures: ~~Ai(blender)~~ + mtb/asp
+- Textures: ~~Ai(blender)~~ + mtb/asp (HELP)
 - Animation (obj seq)
 
 ![My Image](screen.png)
