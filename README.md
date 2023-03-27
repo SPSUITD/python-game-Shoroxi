@@ -2,7 +2,7 @@
 
 # Пришло время для дешевых инди хорроров
 
-###CODE: 
+### CODE: 
 - ✅ сценарий (те самые гуманитарии работающие в ночные смены, в подольске)
 - ✅ hightmap to terrain (убрал пока)
 - ✅ scene loader
@@ -18,17 +18,17 @@
 - ~~HUD~~
 - ~~saving~~
 
-###PANDA3D :
+### PANDA3D :
 - ✅ Light
 - Shadows
 ---
 - ~~new jump physics + running (управление станет более живым)~~
 - ~~dragging~~
 
-###SCENE: 
+### SCENE: 
 - Textures: ~~Ai(blender)~~ + Mtb/ASP (_HELP ME_)
 - Animation (obj seq)
 
-######Made in Autodesk Maya:
+###### Made in Autodesk Maya:
 ![My Image](screen2.png)
 ![My Image](screen.png)
