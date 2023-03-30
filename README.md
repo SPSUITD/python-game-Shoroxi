@@ -32,5 +32,3 @@
 ###### Made in Autodesk Maya:
 ![My Image](screen2.png)
 ![My Image](screen.png)
-
-#test commit
