@@ -5,9 +5,8 @@
       "type": "trigger",
       "name": "test",
       "model": "sphere",
-      "position": [-1.91, 1, -14.44],
-      "radius": 100,
-      "invisible": "invisible"
+      "position": [1, 1, 1],
+      "radius": 30
     }
   ],
   "sound": [
@@ -20,34 +19,37 @@
   ],
   "light": [
     {
+      "type": "ambient",
+      "color": [1, 1, 1]
+    },
+    {
+      "type": "direction",
+      "rotation": [30, 20, 0],
+      "color": [2, 2, 2]
+    },
+    {
       "type": "point",
-      "position": [1, 2, 1],
+      "position": [50, 2, 1],
       "rotation": [0, 90, 0],
       "distance": 0.05,
-      "shadows": true,
-      "color": [100, 100, 100, 128]
+      "color": [74, 116, 159]
     },
     {
-      "id": "interior_shadow_fill",
-      "position": [0, 0, 0],
-      "rotation": [0, 0, 0],
-      "color": [38, 25, 8, 128]
-    },
-    {
-      "id": "exterior_shadow_fill",
-      "position": [0, 0, 0],
-      "rotation": [0, 0, 0],
-      "color": [17, 11, 3, 128]
+      "type": "spot",
+      "position": [1, 100, 1],
+      "rotation": [0, 90, 0],
+      "distance": 0.05,
+      "color": [74, 116, 159]
     }
   ],
   "level_data": [
     {
       "id": "spawn_point",
       "model": "sphere",
-      "position": [-1.91, 1, -14.44]
+      "position": [1, 1, 1]
     },
     {
-      "name": "amb",
+      "name": "ground",
       "model": "assets/levels/ai_test/gz_ground",
       "position": [0, 0, 0],
       "rotation": [0, 0, 0],
@@ -55,21 +57,12 @@
       "scale": 0.5
     },
     {
-      "id": "trigger",
-      "model": "assets/levels/ai_test/gz_ground",
-      "texture": null,
-      "position": [0, 0, 0],
-      "rotation": [0, 0, 0],
-      "ambient": "exterior_shadow_fill",
-      "collider": "mesh",
-      "scale": 0.5
-    },
-    {
+      "name": "gas_station",
       "model": "assets/levels/ai_test/test_gaz_st",
       "texture": null,
       "position": [0, 0, 0],
       "rotation": [0, 0, 0],
-      "collider": "",
+      "collider": "mesh",
       "scale": 0.5
     }
   ]

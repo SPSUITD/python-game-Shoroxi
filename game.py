@@ -4,7 +4,8 @@ import ui
 import setting
 import os.path
 import my_json
-from panda_light import *
+from PandaLighting import *
+import UrsinaLighting as ulight
 # import pyfmodex
 
 import time
@@ -21,11 +22,15 @@ gameplay = True
 game_session = None
 pause = True
 
+# TODO: не находит fmod модуль
 # s_sys = pyfmodex.System()
 # s_sys.init()
 #
-# sound = s_sys.create_sound("somefile.mp3")
+# sound = s_sys.create_sound(sound_folder + "amb.opus")
 # channel = sound.play()
+#
+# while channel.is_playing:
+#     pass
 
 def get_player():
     if game_session:
@@ -54,7 +59,6 @@ def get_current_level():
         return game_session.current_level
     else:
         return None
-
 
 # запустить новый уровень по id из папки levels
 def set_current_level(lvl):
@@ -282,9 +286,7 @@ class Player(Entity):
                     return
                 else:
                     self.grounded = False
-                # TODO: NEW FALL PHYSICS + Running
-                # от этого управление будет чувствоваться живей
-                # if not on ground and not on way up in jump, fall
+
                 self.y -= min(self.air_time, ray.distance - .05) * time.dt * 100
                 self.air_time += time.dt * .25 * self.gravity
 
@@ -295,7 +297,7 @@ class Trigger(Entity):
         self.trigger_targets = (self,)
         self.radius = None
         self.triggerers = []
-        self.update_rate = 40
+        self.update_rate = 80
         self._i = 0
 
         for key, value in kwargs.items():
@@ -303,9 +305,6 @@ class Trigger(Entity):
 
     def get_trigger_id(self):
         return self.trigger_id
-
-    def get_radius(self):
-        return self.radius
 
     def update(self):
         self._i += 1
@@ -316,9 +315,8 @@ class Trigger(Entity):
             if other == self:
                 continue
             dist = distance(other, self)
-            # TODO: radius
-            if other not in self.triggerers and dist <= 10:
-                print(self.get_trigger_id)
+            if other not in self.triggerers and dist <= self.radius:
+                print("Вошел в триггер:" + self.get_trigger_id())
                 self.triggerers.append(other)
                 if hasattr(self, 'on_trigger_enter'):
 
@@ -331,6 +329,7 @@ class Trigger(Entity):
                 continue
 
             if other in self.triggerers and dist > self.radius:
+                print("Вышел")
                 self.triggerers.remove(other)
                 if hasattr(self, 'on_trigger_exit'):
                     self.on_trigger_exit()
@@ -338,9 +337,7 @@ class Trigger(Entity):
 
             if other in self.triggerers and hasattr(self, 'on_trigger_stay'):
                 # if self.trig.num and time==120:
-                print("123")
                 self.on_trigger_stay()
-
 
 # Главный класс игрового процесса
 class Gameplay(Entity):
@@ -363,8 +360,6 @@ class Gameplay(Entity):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-
-
 # Класс уровня
 class Level(Entity):
     def __init__(self, p, **kwargs):
@@ -386,11 +381,11 @@ class Level(Entity):
             # TODO: sound
             for sounds in level_data["sound"]:
                 if sounds["type"] == "amb":
-                    # ambient = (sound_folder + "amb.opus")
-                    # # Source.set_gain(value)
-                    # # Source.set_max_distance(value)
-                    # # Source.set_position([0, 0, 0])
-                    # # Source.set_looping(value)
+                    ambient = (sound_folder + "amb.opus")
+                    # Source.set_gain(value)
+                    # Source.set_max_distance(value)
+                    # Source.set_position([0, 0, 0])
+                    # Source.set_looping(value)
                     # print("AMB: {0}".format(ambient.position))
                     pass
 
@@ -400,30 +395,45 @@ class Level(Entity):
 
             # Создаём объекты из папки с уровнем из файла level
             for obj in level_data["level_data"]:
+
                 if "light" in level_data:
                     for light in level_data["light"]:
-                        # TODO: other types
                         if light["type"] == "point":
-                            l = SpotLight(parent=self, shadows=light["shadows"],
-                                       colour=color.rgba(light["color"][0],light["color"][1],light["color"][2],.1),
+                            l = PointLight(parent=self,
+                                       color=color.rgb(light["color"][0],light["color"][1],light["color"][2]),
                                        position=light["position"],
                                        rotation=light["rotation"],
                                        distance=light["distance"])
                             l.keys = light
                             self.level_objects.append(l)
-                            break
+                        elif light["type"] == "direction":
+                            l = ulight.DirectionalLight(parent=self, rotation=light["rotation"],
+                                        color=color.rgba(light["color"][0],light["color"][1],light["color"][2]))
+                            l.keys = light
+                            self.level_objects.append(l)
+                        elif light["type"] == "spot":
+                            l = SpotLight(parent=self,
+                                       color=color.rgb(light["color"][0],light["color"][1],light["color"][2]),
+                                       position=light["position"],
+                                       rotation=light["rotation"],
+                                       distance=light["distance"])
+                            l.keys = light
+                            self.level_objects.append(l)
+                        elif light["type"] == "ambient":
+                            l = ulight.AmbientLight(parent=self, color=color.rgb(light["color"][0],light["color"][1],light["color"][2]))
+                            l.keys = light
+                            self.level_objects.append(l)
 
                 if "trigger" in level_data:
                     for trigger in level_data["trigger"]:
                         if trigger["type"] == "trigger":
                             t = Trigger(parent=self, trigger_targets=(self.player_data,), model=trigger["model"],
-                                    colour=color.rgba(0,0,0,255),
+                                    color=color.rgba(50,0,0,1),
                                     position=trigger["position"],
                                     radius=trigger["radius"],
                                     trigger_id=trigger["name"])
                             t.keys = trigger
                             self.level_objects.append(t)
-                            break
 
                 # специфичные вещи
                 if "id" in obj:
@@ -443,7 +453,7 @@ class Level(Entity):
                                       rotation=obj["rotation"] if "rotation" in obj else (0,0,0),
                                       scale=obj["scale"] if "scale" in obj else 1,
                                       double_sided=obj["double_sided"] if "double_sided" in obj else False,
-                                      color=color.rgba(obj["color"][0], obj["color"][1], obj["color"][2])
+                                      color=color.rgba(obj["color"][0], obj["color"][1], obj["color"][2],obj["color"][3])
                                       if "color" in obj
                                       else color.white if "id" not in obj
                                       else color.clear if "invisible" in obj and obj["invisible"]
@@ -486,9 +496,6 @@ class Level(Entity):
                 lvl_obj.keys = obj
                 lvl_obj.setShaderAuto()
                 self.level_objects.append(lvl_obj)
-
-    def update(self):
-        pass
 
 class LevelObject(Entity):
     def __init__(self, **kwargs):
