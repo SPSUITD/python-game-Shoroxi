@@ -56,6 +56,9 @@ if __name__ == "__main__":
     scene = Gameplay()
     scene = main_menu.MainMenu()
 
+    # anim_folder = "assets/animations/"
+    # FrameAnimation3d(anim_folder + 'car_anim/car animation', scale=25, loop=False, fps=12)
+
     # from UrsinaLighting import *
     #
     # color_sky_night2 = color.rgb(40, 40, 40)

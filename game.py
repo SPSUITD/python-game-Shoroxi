@@ -1,4 +1,5 @@
 from ursina.shaders import *
+from direct.actor.Actor import Actor
 import callbacks
 import ui
 import setting
@@ -10,6 +11,7 @@ import UrsinaLighting as ulight
 
 import time
 
+anim_folder = "assets/animations/"
 tex_folder = "assets/textures/"
 mesh_folder = "assets/models/"
 ui_folder = "assets/ui/"
@@ -442,9 +444,9 @@ class Level(Entity):
                         get_player().position = obj["position"]
                         self.spawn_point = obj
 
-                    if obj["id"] == "animation":
-                        Animation(tex_folder + obj["sequence"], position=obj["position"], rotation=obj["rotation"],
-                                  scale=obj["scale"],parent=self)
+                    if obj["id"] == "actor_animation":
+                        actor = Actor(anim_folder + "car_anim.gltf")
+                        actor.play("anim_name")
 
                 lvl_obj = LevelObject(parent=self, model=obj["model"],
                                       texture=obj["texture"] if "texture" in obj else None,

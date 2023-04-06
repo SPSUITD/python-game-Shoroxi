@@ -62,7 +62,7 @@
       "texture": null,
       "position": [0, 0, 0],
       "rotation": [0, 0, 0],
-      "collider": "mesh",
+      "collider": "",
       "scale": 0.5
     }
   ]
