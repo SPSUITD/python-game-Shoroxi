@@ -1,15 +1,20 @@
 from ursina import *
 import setting
 import main_menu
+from direct.filter.CommonFilters import CommonFilters
+from ursina.shaders import fxaa_shader
 
 from game import Player
 from game import Gameplay
 from game import Level
 from game import Trigger
+from game import Audio3d
 
 import my_json
 import os.path
 import os
+
+from direct.showbase import Audio3DManager
 
 options = None
 
@@ -50,22 +55,23 @@ if __name__ == "__main__":
     Text.default_font = setting.game_font
 
     text.default_resolution = 720 * Text.size
+
+    application.development_mode = False
+    # Filters
     Texture.default_filtering = False
-    application.development_mode = True
+    filters = CommonFilters(app.win, app.cam)
+
+    filters.setCartoonInk(separation=0.8, color=(0,0,0,0.5))
+    filters.setAmbientOcclusion(radius=0.02,falloff=0.009)
+
+    filters.setSrgbEncode()
+    filters.setHighDynamicRange()
+
+    # Anti-aliasing
+    filters.set_msaa(samples=8)
+    camera.shader = fxaa_shader
 
     scene = Gameplay()
     scene = main_menu.MainMenu()
-
-    # anim_folder = "assets/animations/"
-    # FrameAnimation3d(anim_folder + 'car_anim/car animation', scale=25, loop=False, fps=12)
-
-    # from UrsinaLighting import *
-    #
-    # color_sky_night2 = color.rgb(40, 40, 40)
-    # color_sky_night = color.rgb(10, 10, 10)
-    #
-    # DL = Entity()
-    # DirectionalLight(parent=DL, y=35, color=color_sky_night, rotation=(45, 0, 0), shadows=True)
-    # AmbientLight(color=color_sky_night)
 
     app.run()

@@ -1,10 +1,9 @@
 from ursina import *
 from panda3d.core import PerspectiveLens
-from panda3d.core import TextureStage
-from panda3d.core import DirectionalLight as PandaDirectionalLight
+
 from panda3d.core import PointLight as PandaPointLight
-from panda3d.core import AmbientLight as PandaAmbientLight
 from panda3d.core import Spotlight as PandaSpotLight
+
 from panda3d.core import LVector3
 
 class Light(Entity):
@@ -51,9 +50,9 @@ class SpotLight(Light):
         # and quadratic) in the internal lighting equation. The higher the
         # numbers the shorter the light goes.
         self._light.setAttenuation(LVector3(1, 0.0, 0.0))
-        # This exponent value sets how soft the edge of the spotlight is.
-        # 0 - 128
         self._light.setExponent(60.0)
+        # self._light.set_attenuation()
+        # self._light.set_max_distance()
         render.setLight(self.attachNewNode(self._light))
 
         for key, value in kwargs.items():

@@ -5,11 +5,11 @@ import ui
 import setting
 import os.path
 import my_json
+import time
+
+# то панда то урсина полное фуфло, а не свет делают.
 from PandaLighting import *
 import UrsinaLighting as ulight
-# import pyfmodex
-
-import time
 
 anim_folder = "assets/animations/"
 tex_folder = "assets/textures/"
@@ -23,16 +23,6 @@ options_file = my_json.read("assets/options")
 gameplay = True
 game_session = None
 pause = True
-
-# TODO: не находит fmod модуль
-# s_sys = pyfmodex.System()
-# s_sys.init()
-#
-# sound = s_sys.create_sound(sound_folder + "amb.opus")
-# channel = sound.play()
-#
-# while channel.is_playing:
-#     pass
 
 def get_player():
     if game_session:
@@ -85,17 +75,21 @@ class Player(Entity):
             visible_self=False,
             scale=(25,25,25)
         )
-        self.speed = 40
+        # ------------ Camera 1 ---------------
         self.camera_pivot = Entity(parent=self, y=1)
         camera.parent = self.camera_pivot
-        camera.position = (0, 0, 0)
-        camera.rotation = (0, 0, 0)
         camera.fov = 105
         self.original_fov = camera.fov
         camera.clip_plane_near = 0.06
         camera.clip_plane_far = 500
-        mouse.locked = setting.cursor_lock
-        # ---------------------------
+        # ------------ Camera 2 ---------------
+        self.camHolder = Entity(position=camera.position)
+        self.camStartPos = camera.position
+        self.amplitude = .0058
+        self.frequency = 10
+        self.timer = 0
+        # ------------ Player ---------------
+        self.speed = 40
         self.height = 165
         self.gravity = 1
         self.grounded = False
@@ -104,22 +98,14 @@ class Player(Entity):
         self.fall_after = .35
         self.jumping = False
         self.air_time = 0
-        # ---------------------------
-        # from shaders.camera_shader import ouline_shader
-        # camera.shader = ouline_shader
-        # camera.set_shader_input("blur_size", 0.04)
-        # print(window.getConfigProperties())
-        # ---------------------------
-        # self.listener_pos = s_sys.listener(0).position(self.get_player_pos())
-        # self.listener_vel = s_sys.listener(0).velocity(self.get_player_vel())
-        # ---------------------------
-        self.mouse_sensitivity = Vec2(options_file["mouse_sensitivity"], options_file["mouse_sensitivity"])
-        # ---------------------------
+        # ------------ Ray ---------------
         self.ray_hit = raycast(self.position + (self.down * 0.04), direction=(0, -1, 0), ignore=(self,), distance=50, debug=False)
-        # ---------------------------
-        self.press_f = ui.UIText("press [F]", parent=camera.ui,offset=(0.0018,0.0018), y=-0.35, enabled=False, color=color.white,origin=(0,0))
+        # ------------ Ui ---------------
+        self.press_e = ui.UIText("press [E]", parent=camera.ui,offset=(0.0018,0.0018), y=-0.35, enabled=False, color=color.white,origin=(0,0))
         self.fps_counter = ui.UIText("", (0.0018, 0.0018), color=setting.color_orange, position=(window.right.x - 0.13, window.top.y - .1))
-        # ---------------------------
+        # ------------ Mouse ---------------
+        mouse.locked = setting.cursor_lock
+        self.mouse_sensitivity = Vec2(options_file["mouse_sensitivity"], options_file["mouse_sensitivity"])
         self.rotation_range_y = [-180,180]
         self.mouse_control = True
         self.panel_opened = False
@@ -183,12 +169,26 @@ class Player(Entity):
             if keypress == 'w':
                 # steps_sound = s_sys.create_sound(sound_folder + "walk.opus")
                 # s_sys.play_sound(steps_sound)
-                # TODO: add Fade
-                # camera.shake(duration=1, magnitude=2, speed=.8, direction=(0, 1))
 
                 pass
             # if not (key == 'w') and self.steps_sound.get_state() == AL_PLAYING:
             #     oalQuit()
+
+            # if (held_keys['f']):
+            #     torch.enable = not torch.enable
+
+            if held_keys['w'] or held_keys['a'] or held_keys['s'] or held_keys['d']:
+                # Head Bobbing
+                pos = Vec3(0, 0, 0)
+                pos.y += math.sin(self.timer * self.frequency) * self.amplitude / 1.5
+                pos.x += math.cos(self.timer * self.frequency * 0.5) * self.amplitude / 1.7
+                camera.position += pos
+                pos = Vec3(camera.position.x, camera.position.y + self.camHolder.y, camera.position.z)
+                pos += self.camHolder.forward * 15
+                camera.look_at(pos)
+
+                if not camera.position == self.camStartPos:
+                    camera.position = Vec3(lerp(camera.position, self.camStartPos, time.dt))
 
             if self.ray_hit.hit:
 
@@ -197,7 +197,7 @@ class Player(Entity):
 
                 if getHitData() and getHitData().id is not None:
                     if getHitData().id == "loot":
-                        if keypress == "f" and game_session:
+                        if keypress == "e" and game_session:
                             invoke(self.raycast_once, delay=.05)
                             getHitData().animate_position(value=self.position, duration=1, curve=curve.linear)
                             destroy(getHitData(), delay=1)
@@ -216,13 +216,13 @@ class Player(Entity):
                 self.fps_counter.setText("FPS: {0}".format(window.fps_counter.text))
             self.direction = Vec3(camera.forward)
 
-            def setCrosshairTip(text):
-                self.crosshair_tip_text = text
-                self.press_f.enabled = True
+            def setCrosshairTip(tip_text):
+                self.crosshair_tip_text = tip_text
+                self.press_e.enabled = True
 
             def clearCrosshairText():
                 self.crosshair_tip_text = ""
-                self.press_f.enabled = False
+                self.press_e.enabled = False
 
             def getHitData():
                 if self.ray_hit.hit:
@@ -292,6 +292,18 @@ class Player(Entity):
                 self.y -= min(self.air_time, ray.distance - .05) * time.dt * 100
                 self.air_time += time.dt * .25 * self.gravity
 
+# TODO balance fix
+class Audio3d(Audio):
+    def __init__(self, sound_file_name, max_distance=10, **kwargs):
+        super().__init__(sound_file_name, autoplay=False, **kwargs)
+        self.player = Player()
+        self.max_distance = max_distance
+
+    def update(self):
+        self.balance = math.sin((self.world_position.xz - self.player.world_position.xz).normalized().signedAngleRad(self.player.forward.xz) / 2)
+        self.volume = 1 - min(distance(self.world_position, self.player.world_position) / self.max_distance, 1)
+        print(self.balance," | ",self.volume)
+
 class Trigger(Entity):
     def __init__(self, **kwargs):
         super().__init__()
@@ -299,7 +311,7 @@ class Trigger(Entity):
         self.trigger_targets = (self,)
         self.radius = None
         self.triggerers = []
-        self.update_rate = 80
+        self.update_rate = 150
         self._i = 0
 
         for key, value in kwargs.items():
@@ -325,8 +337,8 @@ class Trigger(Entity):
                     # реализация события от id тригера - через другой файл с сюжетом
                     if self.get_trigger_id() == "test":
                         pass
-                      # invoke(self.play_anim)
-                      # invoke(self.add_quest)
+                    # invoke(self.play_anim)
+                    # invoke(self.add_quest)
                     self.on_trigger_enter()
                 continue
 
@@ -350,6 +362,11 @@ class Gameplay(Entity):
 
         game_session = self
         self.player = Player()
+
+        sound_folder = "assets/sounds/spider_hiss.wav"
+        audio = Audio3d(sound_folder)
+        audio.play()
+        audio.loop = True
 
         # передаём ссылку с созданным гг в уровень для дальнейшего доступа к классу гг
         invoke(self.player.load_location, player_creature["start_level"] if level is None else level,delay=0.00001)
@@ -415,7 +432,7 @@ class Level(Entity):
                             self.level_objects.append(l)
                         elif light["type"] == "spot":
                             l = SpotLight(parent=self,
-                                       color=color.rgb(light["color"][0],light["color"][1],light["color"][2]),
+                                       color=color.rgba(light["color"][0],light["color"][1],light["color"][2]),
                                        position=light["position"],
                                        rotation=light["rotation"],
                                        distance=light["distance"])
@@ -462,10 +479,11 @@ class Level(Entity):
                                       else color.clear,
                                       id=obj["id"] if "id" in obj else None)
 
-                # столкновения
+                # cделать объект невидимым
                 # if "trigger" in obj and obj["trigger"]:
                 #     lvl_obj.trigger = obj["trigger"]
 
+                # столкновения
                 if "collider" in obj and obj["collider"]:
                     lvl_obj.collider = obj["collider"]
 
@@ -482,17 +500,11 @@ class Level(Entity):
                 if "shader" in obj and obj["shader"]:
                     lvl_obj.shader = lit_with_shadows_shader
 
-                # заливка цветом (light - panda3d) / альфа канал не робит не знаю почему
-                if "ambient" in obj:
-                    _light = PandaAmbientLight('ambient_light')
-                    for light in level_data["light"]:
-                        if "id" in light and light["id"] == obj["ambient"]:
-                            _light.setColor(color.rgba(light["color"][0],light["color"][1],light["color"][2],light["color"][3]))
-                            break
-                    lvl_obj.setLight(lvl_obj.attachNewNode(_light))
-
                 scene.fog_density = 0.010
                 scene.fog_color = color.rgb(level_data["weather_color"][0], level_data["weather_color"][1], level_data["weather_color"][2])
+
+                # sunsetSky = load_texture(tex_folder+'sunset.jpg')
+                # Sky(texture=sunsetSky)
 
                 # присваиваем ему все ключи из файла с уровнем
                 lvl_obj.keys = obj

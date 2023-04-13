@@ -20,25 +20,68 @@
   "light": [
     {
       "type": "ambient",
-      "color": [1, 1, 1]
-    },
-    {
-      "type": "direction",
-      "rotation": [30, 20, 0],
-      "color": [2, 2, 2]
+      "color": [5, 5, 7]
     },
     {
       "type": "point",
+      "parent": "self",
       "position": [50, 2, 1],
       "rotation": [0, 90, 0],
       "distance": 0.05,
+      "shadows": false,
+      "color": [74, 116, 159]
+    },
+    {
+      "type": "point",
+      "parent": "self",
+      "position": [50, 65, 300],
+      "rotation": [0, 90, 0],
+      "distance": 0.05,
+      "shadows": false,
+      "color": [74, 116, 159]
+    },
+    {
+      "type": "point",
+      "parent": "self",
+      "position": [-20, 65, 300],
+      "rotation": [0, 90, 0],
+      "distance": 0.05,
+      "shadows": false,
+      "color": [255, 116, 159]
+    },
+    {
+      "type": "point",
+      "parent": "self",
+      "position": [50, 65, 220],
+      "rotation": [0, 90, 0],
+      "distance": 0.05,
+      "shadows": true,
+      "color": [255, 116, 159]
+    },
+    {
+      "type": "point",
+      "parent": "self",
+      "position": [-20, 65, 220],
+      "rotation": [0, 90, 0],
+      "distance": 0.05,
+      "shadows": false,
+      "color": [74, 116, 159]
+    },
+    {
+      "id": "flash_l",
+      "type": "point",
+      "parent": "camera",
+      "position": [0, 0, 0.5],
+      "rotation": [0, 0, 0],
+      "distance": 0.05,
+      "shadows": false,
       "color": [74, 116, 159]
     },
     {
       "type": "spot",
       "position": [1, 100, 1],
-      "rotation": [0, 90, 0],
-      "distance": 0.05,
+      "rotation": [0, 90, 60],
+      "distance": 0.1,
       "color": [74, 116, 159]
     }
   ],

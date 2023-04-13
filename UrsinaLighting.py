@@ -74,78 +74,18 @@ class LitDirectionalLight():
 
         LitLightList[0] = Vec4(color.x, color.y, color.z, 1)
         LitLightList[1] = Vec4(direction.x, direction.y, direction.z, intensity)
-    
-    def setIntensity(self, intensity=1):
+
+    @staticmethod
+    def setIntensity(intensity=1):
         LitLightList[1].w = intensity
-    
-    def setColor(self, color=Vec3(1)):
+
+    @staticmethod
+    def setColor(color=Vec3(1)):
         LitLightList[0].xyz = color
     
-    def setDirection(self, direction=Vec3(-1)):
+    @staticmethod
+    def setDirection(direction=Vec3(-1)):
         LitLightList[1].xyz = direction
         
     def toggleShadows(self):
         self.sun.shadows = not self.sun.shadows
-#
-# class LitPointLight():
-#     def __init__(self, position=Vec3(0), color=Vec3(1), range=20, intensity=1):
-#         self.listIndex = len(LitLightList)
-#         self.position = position
-#         self.color = color
-#         self.range = range
-#         self.intensity = intensity
-#         LitLightList.append(Vec4(color.x, color.y, color.z, range))
-#         LitLightList.append(Vec4(position.x, position.y, position.z, intensity))
-#
-#     def setIntensity(self, intensity=1):
-#         self.intensity = intensity
-#         LitLightList[self.listIndex + 1].w = intensity
-#
-#     def setRange(self, range=20):
-#         self.range = range
-#         LitLightList[self.listIndex].w = range
-#
-#     def setPosition(self, position=Vec3(0)):
-#         self.position = position
-#         LitLightList[self.listIndex + 1].xyz = position
-#
-#     def setColor(self, color=Vec3(1)):
-#         self.color = color
-#         LitLightList[self.listIndex].xyz = color
-#
-# class LitSpotLight():
-#     def __init__(self, position=Vec3(0), color=Vec3(1), range=20, intensity=1, direction=Vec3(0), angle=30):
-#         self.listIndex = len(LitSpotList)
-#         self.position = position
-#         self.color = color
-#         self.range = range
-#         self.intensity = intensity
-#         self.direction = direction
-#         self.angle = angle
-#         LitSpotList.append(Vec4(color.x, color.y, color.z, range))
-#         LitSpotList.append(Vec4(position.x, position.y, position.z, intensity))
-#         LitSpotList.append(Vec4(direction.x, direction.y, direction.z, np.cos(np.radians(angle))))
-#
-#     def setIntensity(self, intensity=1):
-#         self.intensity = intensity
-#         LitSpotList[self.listIndex + 1].w = intensity
-#
-#     def setRange(self, range=20):
-#         self.range = range
-#         LitSpotList[self.listIndex].w = range
-#
-#     def setPosition(self, position=Vec3(0)):
-#         self.position = position
-#         LitSpotList[self.listIndex + 1].xyz = position
-#
-#     def setColor(self, color=Vec3(1)):
-#         self.color = color
-#         LitSpotList[self.listIndex].xyz = color
-#
-#     def setDirection(self, direction=Vec3(0)):
-#         self.direction = direction
-#         LitSpotList[self.listIndex + 2].xyz = direction
-#
-#     def setAngle(self, angle=30):
-#         self.angle = angle
-#         LitSpotList[self.listIndex + 2].w = np.cos(np.radians(angle))
