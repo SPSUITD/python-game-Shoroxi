@@ -94,7 +94,7 @@
     {
       "name": "ground",
       "model": "assets/levels/ai_test/gz_ground",
-      "position": [0, 0, 0],
+      "position": [0, -40, 0],
       "rotation": [0, 0, 0],
       "collider": "mesh",
       "scale": 0.5
@@ -103,10 +103,19 @@
       "name": "gas_station",
       "model": "assets/levels/ai_test/test_gaz_st",
       "texture": null,
-      "position": [0, 0, 0],
+      "position": [0, -40, 0],
       "rotation": [0, 0, 0],
       "collider": "",
       "scale": 0.5
+    },
+    {"id": "loot",
+      "loot_id": "test_loot",
+      "model": "cube",
+      "position": [-16, 17, 0.03],
+      "rotation": [0, 0, 0],
+      "collider": "box",
+      "scale": 35,
+      "color": [10, 10, 10, 128]
     }
   ]
 }

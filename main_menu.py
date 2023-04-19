@@ -13,41 +13,25 @@ cursor = ui_folder + "set.ico"
 bg_options = "/bg_test.png"
 bg_mm = "bg_test.png"
 
-menu_buttons_counter = 0
-menu_buttons_list = [
-    "Новая игра",
-    "Настройки",
-    "Выход"
-]
-
 class MainMenu(Entity):
 
     def __init__(self):
         super().__init__(parent=camera.ui, z=-0.001)
         global scene
         scene = self
+        self.menu_buttons_counter = 0
+        self.menu_buttons_list = [
+            "Новая игра",
+            "Настройки",
+            "Выход"
+        ]
         self.click_sound = Audio(sound_folder + "click", autoplay=False, loop=False)
         self.main_menu = Entity(parent=self, enabled=True)
         Entity(parent=self.main_menu, model="quad", color=rgb(2, 2, 0), scale=2)
         Sprite(parent=self.main_menu, texture=bg_mm, y=0.1, scale=0.5)
-        self.menu_punkt = Text(parent=self.main_menu, text="← {0} →".format(menu_buttons_list[menu_buttons_counter]),
+        self.menu_punkt = Text(parent=self.main_menu, text="← {0} →".format(self.menu_buttons_list[self.menu_buttons_counter]),
                                origin=(0, 0), y=-0.4,
                                color=setting.color_orange)
-        # TODO: Тут какой-то баг. не отвечает ввод
-        self.ShowMessageBox("Приложение в разработке", "Test caption for this message window!","info")
-
-    def ShowMessageBox(self, title, caption, type="info"):
-        msg = ui.MessageBox(title, caption, type)
-        msg.ignored_input_entity = self
-        self.ignore_input = True
-
-    def ChangeScreen(self, screen):
-        camera.overlay.color = color.black
-        loading = Text("loading", origin=(0, 0), color=setting.color_orange, always_on_top=True)
-        destroy(loading, delay=1)
-        invoke(screen, delay=1)
-        destroy(self)
-        invoke(setattr, camera.overlay, 'color', color.clear, delay=1)
 
     def StartNewGame(self,level=None):
         camera.overlay.color = color.black
@@ -60,29 +44,29 @@ class MainMenu(Entity):
         #invoke(story.show_intro_text,delay=2)
 
     def input(self, key):
-        global menu_buttons_counter
         if self.main_menu.enabled:
             if key == "a" or key == "left arrow":
                 self.click_sound.play()
-                if menu_buttons_counter > 0:
-                    menu_buttons_counter = menu_buttons_counter - 1
+                if self.menu_buttons_counter > 0:
+                    self.menu_buttons_counter -= 1
                 else:
-                    menu_buttons_counter = 3
+                    self.menu_buttons_counter = 2
+
             if key == "d" or key == "right arrow":
                 self.click_sound.play()
-                if menu_buttons_counter < 3:
-                    menu_buttons_counter = menu_buttons_counter + 1
+                if self.menu_buttons_counter < 2:
+                    self.menu_buttons_counter += 1
                 else:
-                    menu_buttons_counter = 0
+                    self.menu_buttons_counter = 0
 
             if key == "enter":
-                if menu_buttons_counter == 0:
+                if self.menu_buttons_counter == 0:
                     self.StartNewGame()
-                if menu_buttons_counter == 1:
+                if self.menu_buttons_counter == 1:
                     self.main_menu.enabled = False
                     Options().options_menu.enabled = True
-                if menu_buttons_counter == 2: application.quit()
-            self.menu_punkt.text = "← {0} →".format(menu_buttons_list[menu_buttons_counter])
+                if self.menu_buttons_counter == 2: application.quit()
+            self.menu_punkt.text = "← {0} →".format(self.menu_buttons_list[self.menu_buttons_counter])
 
 class Options(Entity):
     def __init__(self):
@@ -114,14 +98,12 @@ class Options(Entity):
                                    text="[{0}]".format("Да" if self.options["show_fps"] else "Нет"),
                                    origin=(.5, -.5), x=0.3, y=0.21)
         # -------------
-        self.fps_punkt = Text(parent=self.options_menu,
-                              text="Отображение фпс", origin=(-.5, 0), x=-0.4, y=0.15)
+        self.fps_punkt = Text(parent=self.options_menu, text="Отображение фпс", origin=(-.5, 0), x=-0.4, y=0.15)
         self.fps_text = ui.UIText(parent=self.options_menu, color=setting.color_orange,
                                   text="[{0}]".format("Да" if self.options["show_fps"] else "Нет"),
                                   origin=(.5, -.5), x=0.3, y=0.16)
         # -------------
-        self.autodetect_punkt = Text(parent=self.options_menu,
-                                     text="авто разрешение", origin=(-.5, 0), x=-0.4, y=0.08)
+        self.autodetect_punkt = Text(parent=self.options_menu, text="авто разрешение", origin=(-.5, 0), x=-0.4, y=0.08)
         self.auto_text = ui.UIText(parent=self.options_menu, color=setting.color_orange,
                                    text="[{0}]".format("Да" if self.options["autodetect"] else "Нет"),
                                    origin=(.5, -.5), x=0.3, y=0.07)
@@ -144,13 +126,6 @@ class Options(Entity):
             dedent("control.tip").strip(),
             parent=self.options_menu, y=-0.40, x=-0.7, origin=(-.5, 0), color=color.dark_gray, size=4)
 
-    def ShowMessageBox(self, title, caption, type="info"):
-        if self.message:
-            invoke(destroy, self.message, delay=0.00001)
-        self.message = ui.MessageBox(title, caption, type, parent=self.options_menu)
-        self.message.ignored_input_entity = self
-        self.options_menu.ignore_input = True
-
     def input(self, key):
         if self.enabled and key == "escape":
             scene.main_menu.enable()
@@ -162,7 +137,6 @@ class Options(Entity):
                 self.option_selector -= 1
             else:
                 self.option_selector = len(self.option_punkts_list) - 1
-            # print (self.option_selector)
 
             if self.option_selector == len(self.option_punkts_list) - 1:
                 self.selector.position = (self.option_punkts_list[self.option_selector].x - 0.15,
@@ -183,7 +157,6 @@ class Options(Entity):
             else:
                 self.selector.position = (self.option_punkts_list[self.option_selector].x - 0.05,
                                           self.option_punkts_list[self.option_selector].y)
-        # print(self.option_selector)
 
         if self.enabled and (key == "enter") or key == "d" or key == "a" or key == "right arrow" or key == "left arrow":
             self.click_sound.play()

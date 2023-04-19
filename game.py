@@ -1,15 +1,14 @@
-from ursina.shaders import *
-from direct.actor.Actor import Actor
-import callbacks
-import ui
-import setting
 import os.path
-import my_json
-import time
 
+from direct.actor.Actor import Actor
+from ursina.shaders import *
+
+import UrsinaLighting as ulight
+import my_json
+import setting
+import ui
 # то панда то урсина полное фуфло, а не свет делают.
 from PandaLighting import *
-import UrsinaLighting as ulight
 
 anim_folder = "assets/animations/"
 tex_folder = "assets/textures/"
@@ -77,11 +76,14 @@ class Player(Entity):
         )
         # ------------ Camera 1 ---------------
         self.camera_pivot = Entity(parent=self, y=1)
+        camera.position = (0, 0, 0)
+        camera.rotation = (0, 0, 0)
         camera.parent = self.camera_pivot
         camera.fov = 105
         self.original_fov = camera.fov
         camera.clip_plane_near = 0.06
         camera.clip_plane_far = 500
+        self.direction = Vec3(camera.forward)
         # ------------ Camera 2 ---------------
         self.camHolder = Entity(position=camera.position)
         self.camStartPos = camera.position
@@ -93,22 +95,33 @@ class Player(Entity):
         self.height = 165
         self.gravity = 1
         self.grounded = False
-        self.jump_height = 2
+        self.jump_height = 8
         self.jump_up_duration = .5
-        self.fall_after = .35
+        self.fall_after = .2
         self.jumping = False
         self.air_time = 0
         # ------------ Ray ---------------
-        self.ray_hit = raycast(self.position + (self.down * 0.04), direction=(0, -1, 0), ignore=(self,), distance=50, debug=False)
+        # self.ray_hit = raycast(self.position + (0, self.height - 20, 0), Vec3(camera.forward), ignore=(self,), debug=True)
+
+        ray = raycast(self.world_position + (0, self.height, 0), self.down, ignore=(self,))
+        self.ray_hit = raycast(self.position + (self.down * 0.04), self.direction, ignore=(self,), distance=inf, debug=True)
+
+        # self.ray_hit = raycast(camera.position, direction=Vec3(camera.forward), ignore=(self,), distance=1000, debug=True)
         # ------------ Ui ---------------
         self.press_e = ui.UIText("press [E]", parent=camera.ui,offset=(0.0018,0.0018), y=-0.35, enabled=False, color=color.white,origin=(0,0))
         self.fps_counter = ui.UIText("", (0.0018, 0.0018), color=setting.color_orange, position=(window.right.x - 0.13, window.top.y - .1))
+        # self.cursor = Sprite(ui_folder + "crosshair.png", parent=camera.ui, scale=.26, color = self.hideHUD())
+        self.crosshair_tip_text = "Demo"
+        self.crosshair_tip = ui.UIText(parent=camera.ui, offset=(0.0015,0.0015), text=self.crosshair_tip_text, origin=(0, 0), y=0.04,
+                                       color=color.white, scale=1, x=0, z=-0.001)
         # ------------ Mouse ---------------
         mouse.locked = setting.cursor_lock
         self.mouse_sensitivity = Vec2(options_file["mouse_sensitivity"], options_file["mouse_sensitivity"])
-        self.rotation_range_y = [-180,180]
         self.mouse_control = True
-        self.panel_opened = False
+        # ------------ Mouse ---------------
+        # self.flashlight = SpotLight(parent=camera, position=(0, 0, 0.5))
+        # self.torch = Entity(model='cube', color=color.orange, scale=(0.1, 0.1, 0.3), position=(0, 0, 0.5))
+        # ------------ Trigger ---------------
 
         # TODO: Enable menu
         # if pause:
@@ -121,18 +134,17 @@ class Player(Entity):
         camera.overlay.color = color.black
         loading = Text("loading", origin=(0, 0), color=setting.color_orange, always_on_top=True)
 
-        destroy(get_current_level())
-
-        invoke(set_current_level,level,delay=2)
+        set_player_to_level_spawn_point()
         self.set_crosshair()
         self.raycast_once()
         invoke(setattr, camera.overlay, 'color', color.clear, delay=2)
         destroy(loading, delay=2)
+        # TODO ADD fade
 
     def raycast_once(self):
-        self.ray_hit = raycast(self.position + (self.down * 0.04), direction=Vec3(camera.forward), ignore=(self,),
-                               distance=50,
-                               debug=False)
+        self.ray_hit = raycast(camera.position, direction=Vec3(camera.forward), ignore=(self,),
+                               distance=1000,
+                               debug=True)
 
     def set_player_pos(self,x,y,z):
         self.position = (x,y,z)
@@ -141,7 +153,7 @@ class Player(Entity):
         return self.position
 
     def set_crosshair(self):
-        self.press_f.enable()
+        self.press_e.enable()
 
     def jump(self):
         if not self.grounded:
@@ -169,13 +181,14 @@ class Player(Entity):
             if keypress == 'w':
                 # steps_sound = s_sys.create_sound(sound_folder + "walk.opus")
                 # s_sys.play_sound(steps_sound)
-
                 pass
+
             # if not (key == 'w') and self.steps_sound.get_state() == AL_PLAYING:
             #     oalQuit()
 
-            # if (held_keys['f']):
-            #     torch.enable = not torch.enable
+            # if keypress == 'f':
+            #     self.flashlight.enabled = not self.flashlight.enabled
+            #     self.torch.enabled = not self.torch.enabled
 
             if held_keys['w'] or held_keys['a'] or held_keys['s'] or held_keys['d']:
                 # Head Bobbing
@@ -201,8 +214,10 @@ class Player(Entity):
                             invoke(self.raycast_once, delay=.05)
                             getHitData().animate_position(value=self.position, duration=1, curve=curve.linear)
                             destroy(getHitData(), delay=1)
-                    if getHitData().id == "npc":
-                        pass
+                    if getHitData().id == "npc" and self.t.get_trigger_id() == "test":
+                        if keypress == "e" and game_session:
+                            invoke(self.raycast_once, delay=.05)
+                            destroy(getHitData(), delay=1)
 
             if keypress == "escape" and not self.dialogue.enabled:
                 pass
@@ -238,7 +253,8 @@ class Player(Entity):
                     # TODO: name key for loot items
                     if getHitData().id == "loot":
                         setCrosshairTip("interact.loot")
-                    # TODO: dialogue system
+                    if getHitData().id == "npc":
+                        setCrosshairTip("npc.dialogue")
                     if getHitData().id == "" or getHitData().id is None:
                         clearCrosshairText()
 
@@ -251,7 +267,7 @@ class Player(Entity):
 
                 self.rotation_y += mouse.velocity[0] * self.mouse_sensitivity[1]
                 self.camera_pivot.rotation_x -= mouse.velocity[1] * self.mouse_sensitivity[0]
-                self.camera_pivot.rotation_x = clamp(self.camera_pivot.rotation_x, -30, 30) if not setting.developer_mode else clamp(self.camera_pivot.rotation_x, -90, 90)
+                self.camera_pivot.rotation_x = clamp(self.camera_pivot.rotation_x, -60, 60) if not setting.developer_mode else clamp(self.camera_pivot.rotation_x, -90, 90)
 
                 self.direction = Vec3(
                     self.forward * (held_keys['w'] - held_keys['s'])
@@ -276,7 +292,6 @@ class Player(Entity):
             # ---------------------------
             if self.gravity:
                 ray = raycast(self.world_position + (0, self.height, 0), self.down, ignore=(self,))
-                # ray = boxcast(self.world_position+(0,2,0), self.down, ignore=(self,))
 
                 if ray.distance <= self.height + .1:
                     if not self.grounded:
@@ -359,23 +374,19 @@ class Gameplay(Entity):
         super().__init__()
         global gameplay
         global game_session
+        global pause
 
+        pause = False
         game_session = self
         self.player = Player()
-
-        sound_folder = "assets/sounds/spider_hiss.wav"
-        audio = Audio3d(sound_folder)
-        audio.play()
-        audio.loop = True
-
         # передаём ссылку с созданным гг в уровень для дальнейшего доступа к классу гг
         invoke(self.player.load_location, player_creature["start_level"] if level is None else level,delay=0.00001)
         self.current_level = Level(self.player, level_id=player_creature["start_level"] if level is None else level)
+        set_player_to_level_spawn_point()
+
         # self.current_quest = Story()
         gameplay = True
-        # t.on_trigger_enter = Func(print, 'enter')
-        # t.on_trigger_exit = Func(print, 'exit')
-        # t.on_trigger_stay = Func(print, 'stay')
+
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -384,7 +395,6 @@ class Level(Entity):
     def __init__(self, p, **kwargs):
         super().__init__()
         self.level_id = None
-        self.with_light = False
         self.level_objects = []
 
         self.player_data = p
@@ -392,12 +402,11 @@ class Level(Entity):
 
         for key, value in kwargs.items():
             setattr(self, key, value)
+
         # Если мы начали игру
         if os.path.isdir("assets/levels/" + str(self.level_id)):
             level_data = my_json.read("assets/levels/" + str(self.level_id) + "/level")
-            window.color = color.rgb(level_data["weather_color"][0], level_data["weather_color"][1], level_data["weather_color"][2])
 
-            # TODO: sound
             for sounds in level_data["sound"]:
                 if sounds["type"] == "amb":
                     ambient = (sound_folder + "amb.opus")
@@ -412,60 +421,53 @@ class Level(Entity):
                     source = (sound_folder + "fan.opus")
                     pass
 
+            for trigger in level_data["trigger"]:
+                t = Trigger(parent=self, trigger_targets=(self.player_data,), model=trigger["model"],
+                            color=color.rgba(50, 0, 0, 1),
+                            position=trigger["position"],
+                            radius=trigger["radius"],
+                            trigger_id=trigger["name"])
+                t.keys = trigger
+                self.level_objects.append(t)
+
+            for light in level_data["light"]:
+                if light["type"] == "point":
+                    l = PointLight(parent=self,
+                                   color=color.rgb(light["color"][0], light["color"][1], light["color"][2]),
+                                   position=light["position"],
+                                   rotation=light["rotation"],
+                                   distance=light["distance"])
+                    l.keys = light
+                    self.level_objects.append(l)
+                elif light["type"] == "direction":
+                    l = ulight.DirectionalLight(parent=self, rotation=light["rotation"],
+                                                color=color.rgba(light["color"][0], light["color"][1],
+                                                                 light["color"][2]))
+                    l.keys = light
+                    self.level_objects.append(l)
+                elif light["type"] == "spot":
+                    l = SpotLight(parent=self,
+                                  color=color.rgba(light["color"][0], light["color"][1], light["color"][2]),
+                                  position=light["position"],
+                                  rotation=light["rotation"],
+                                  distance=light["distance"])
+                    l.keys = light
+                    self.level_objects.append(l)
+                elif light["type"] == "ambient":
+                    l = ulight.AmbientLight(parent=self,
+                                            color=color.rgb(light["color"][0], light["color"][1], light["color"][2]))
+                    l.keys = light
+                    self.level_objects.append(l)
+
             # Создаём объекты из папки с уровнем из файла level
             for obj in level_data["level_data"]:
-
-                if "light" in level_data:
-                    for light in level_data["light"]:
-                        if light["type"] == "point":
-                            l = PointLight(parent=self,
-                                       color=color.rgb(light["color"][0],light["color"][1],light["color"][2]),
-                                       position=light["position"],
-                                       rotation=light["rotation"],
-                                       distance=light["distance"])
-                            l.keys = light
-                            self.level_objects.append(l)
-                        elif light["type"] == "direction":
-                            l = ulight.DirectionalLight(parent=self, rotation=light["rotation"],
-                                        color=color.rgba(light["color"][0],light["color"][1],light["color"][2]))
-                            l.keys = light
-                            self.level_objects.append(l)
-                        elif light["type"] == "spot":
-                            l = SpotLight(parent=self,
-                                       color=color.rgba(light["color"][0],light["color"][1],light["color"][2]),
-                                       position=light["position"],
-                                       rotation=light["rotation"],
-                                       distance=light["distance"])
-                            l.keys = light
-                            self.level_objects.append(l)
-                        elif light["type"] == "ambient":
-                            l = ulight.AmbientLight(parent=self, color=color.rgb(light["color"][0],light["color"][1],light["color"][2]))
-                            l.keys = light
-                            self.level_objects.append(l)
-
-                if "trigger" in level_data:
-                    for trigger in level_data["trigger"]:
-                        if trigger["type"] == "trigger":
-                            t = Trigger(parent=self, trigger_targets=(self.player_data,), model=trigger["model"],
-                                    color=color.rgba(50,0,0,1),
-                                    position=trigger["position"],
-                                    radius=trigger["radius"],
-                                    trigger_id=trigger["name"])
-                            t.keys = trigger
-                            self.level_objects.append(t)
-
-                # специфичные вещи
                 if "id" in obj:
-
                     if obj["id"] == "spawn_point":
                         get_player().position = obj["position"]
                         self.spawn_point = obj
 
-                    if obj["id"] == "actor_animation":
-                        actor = Actor(anim_folder + "car_anim.gltf")
-                        actor.play("anim_name")
-
-                lvl_obj = LevelObject(parent=self, model=obj["model"],
+                lvl_obj = LevelObject(parent=self,
+                                      model=obj["model"] if "model" in obj else None,
                                       texture=obj["texture"] if "texture" in obj else None,
                                       # filtering=Texture.default_filtering,
                                       position=obj["position"] if "position" in obj else (0, 0, 0),
@@ -495,7 +497,6 @@ class Level(Entity):
                 # название подбираемого предмета
                 if "name" in obj and obj["name"]:
                     lvl_obj.name = obj["name"]
-                    # show name
 
                 if "shader" in obj and obj["shader"]:
                     lvl_obj.shader = lit_with_shadows_shader

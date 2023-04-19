@@ -42,7 +42,7 @@ class MessageBox(Entity):
 
         self.msg_box_type = type
         game.pause = True
-        game.get_player().mouse_control = False
+        # game.get_player().mouse_control = False
         mouse.locked = False
 
         for key, value in kwargs.items():
@@ -50,7 +50,7 @@ class MessageBox(Entity):
 
     def close_window(self):
         game.pause = False
-        game.get_player().mouse_control = True
+        # game.get_player().mouse_control = True
         mouse.locked = True
 
         if self.ignored_input_entity is not None:
