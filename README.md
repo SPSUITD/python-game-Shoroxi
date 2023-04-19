@@ -6,9 +6,9 @@
 - ✅ сценарий (те самые гуманитарии работающие в ночные смены, в подольске)
 - ✅ hightmap to terrain (убрал пока)
 - ✅ scene loader
-- ✅ raycast
+- ❌ raycast (need fix)
 - ✅ menu (Settings not finished)
-- ✅ shader (может изменим/уберем)
+- ✅ shader
 - ✅ fog
 - ✅ trigger (ghosting)
 - npc + dialogue system
@@ -25,9 +25,11 @@
 - ❌ ~~dragging~~
 
 ### SCENE: 
-- Textures: ~~Ai(blender)~~ + ~~Mtb/ASP~~ (_HELP ME_)
-- ❌ ~~Animation (obj seq)~~ (very low fps / only actor)
+- ~~Textures: Ai(blender) + Mtb/ASP~~ (_HELP ME_)
+- ✅ Animation (only actor) 
 
 ###### Made in Autodesk Maya:
+![My Image](изображение_2023-04-19_132007064.png)
 ![My Image](screen2.png)
 ![My Image](screen.png)
+
