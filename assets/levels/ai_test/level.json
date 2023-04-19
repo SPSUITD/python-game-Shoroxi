@@ -9,6 +9,11 @@
       "radius": 30
     }
   ],
+  "anims": [
+    {
+      "name": "low"
+    }
+  ],
   "sound": [
     {
       "type": "amb",

@@ -55,10 +55,10 @@ if __name__ == "__main__":
     filters = CommonFilters(app.win, app.cam)
 
     filters.setCartoonInk(separation=0.8, color=(0,0,0,0.5))
-    # filters.setAmbientOcclusion(radius=0.02,falloff=0.009)
-    #
-    # filters.setSrgbEncode()
-    # filters.setHighDynamicRange()
+    filters.setAmbientOcclusion(radius=0.05,amount=1,strength=0.006)
+
+    filters.setSrgbEncode()
+    filters.setHighDynamicRange()
 
     # Anti-aliasing
     filters.set_msaa(samples=8)

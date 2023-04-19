@@ -384,7 +384,6 @@ class Gameplay(Entity):
         self.current_level = Level(self.player, level_id=player_creature["start_level"] if level is None else level)
         set_player_to_level_spawn_point()
 
-        # self.current_quest = Story()
         gameplay = True
 
         for key, value in kwargs.items():
@@ -406,6 +405,14 @@ class Level(Entity):
         # Если мы начали игру
         if os.path.isdir("assets/levels/" + str(self.level_id)):
             level_data = my_json.read("assets/levels/" + str(self.level_id) + "/level")
+
+            for anims in level_data["anims"]:
+                entity = Entity(parent=self, position=(1,-36,1), scale=16)
+                # animations are stored within the file
+                actor = Actor(anim_folder + anims["name"]+".gltf")
+                actor.reparent_to(entity)
+                actor.loop("MXManim")
+                self.level_objects.append(actor)
 
             for sounds in level_data["sound"]:
                 if sounds["type"] == "amb":
