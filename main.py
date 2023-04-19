@@ -64,7 +64,7 @@ if __name__ == "__main__":
     filters.set_msaa(samples=8)
     camera.shader = fxaa_shader
 
-    # scene = Gameplay()
-    scene = main_menu.MainMenu()
+    scene = Gameplay()
+    # scene = main_menu.MainMenu()
 
     app.run()

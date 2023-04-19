@@ -12,7 +12,7 @@ cursor = True
 cursor_lock = True
 
 show_hud = True
-developer_mode = False
+developer_mode = True
 show_raycast_debug = True
 color_orange = color.rgb(238, 157, 49)
 game_font = "assets/fonts/fix.ttf"

@@ -101,12 +101,8 @@ class Player(Entity):
         self.jumping = False
         self.air_time = 0
         # ------------ Ray ---------------
-        # self.ray_hit = raycast(self.position + (0, self.height - 20, 0), Vec3(camera.forward), ignore=(self,), debug=True)
-
-        ray = raycast(self.world_position + (0, self.height, 0), self.down, ignore=(self,))
-        self.ray_hit = raycast(self.position + (self.down * 0.04), self.direction, ignore=(self,), distance=inf, debug=True)
-
-        # self.ray_hit = raycast(camera.position, direction=Vec3(camera.forward), ignore=(self,), distance=1000, debug=True)
+        self.hit_text = "None"
+        self.ray_hit = raycast(self.position + (0, 20, 0), self.direction, ignore=(self,), distance=100, debug=True)
         # ------------ Ui ---------------
         self.press_e = ui.UIText("press [E]", parent=camera.ui,offset=(0.0018,0.0018), y=-0.35, enabled=False, color=color.white,origin=(0,0))
         self.fps_counter = ui.UIText("", (0.0018, 0.0018), color=setting.color_orange, position=(window.right.x - 0.13, window.top.y - .1))
@@ -122,6 +118,14 @@ class Player(Entity):
         # self.flashlight = SpotLight(parent=camera, position=(0, 0, 0.5))
         # self.torch = Entity(model='cube', color=color.orange, scale=(0.1, 0.1, 0.3), position=(0, 0, 0.5))
         # ------------ Trigger ---------------
+        # ------------ DEV ---------------
+        if setting.developer_mode:
+            self.debug_info_window = Entity(parent=camera.ui, model=Quad(radius=.03), color=color.rgba(10, 10, 10, 200),
+                                            origin=(-.5, .5),
+                                            position=Vec2(window.top_left.x + 0.02, window.top_left.y - 0.09),
+                                            scale=Vec2(0.3, 0.35))
+            self.debug_text = Text(parent=camera.ui, text="null", color=setting.color_orange, origin=(-.5, .5),
+                                   position=(window.top_left.x + 0.03, window.top_left.y - 0.095, -0.003))
 
         # TODO: Enable menu
         # if pause:
@@ -142,9 +146,7 @@ class Player(Entity):
         # TODO ADD fade
 
     def raycast_once(self):
-        self.ray_hit = raycast(camera.position, direction=Vec3(camera.forward), ignore=(self,),
-                               distance=1000,
-                               debug=True)
+        self.ray_hit = raycast(self.position + (0, 20, 0), self.direction, ignore=(self,), distance=100)
 
     def set_player_pos(self,x,y,z):
         self.position = (x,y,z)
@@ -213,8 +215,12 @@ class Player(Entity):
                         if keypress == "e" and game_session:
                             invoke(self.raycast_once, delay=.05)
                             getHitData().animate_position(value=self.position, duration=1, curve=curve.linear)
+                            # destroy(getHitData(), delay=1)
+                    if getHitData().id == "npc":
+                        if keypress == "e" and game_session:
+                            invoke(self.raycast_once, delay=.05)
                             destroy(getHitData(), delay=1)
-                    if getHitData().id == "npc" and self.t.get_trigger_id() == "test":
+                    if getHitData().id == "tr" and self.t.get_trigger_id() == "test":
                         if keypress == "e" and game_session:
                             invoke(self.raycast_once, delay=.05)
                             destroy(getHitData(), delay=1)
@@ -229,7 +235,6 @@ class Player(Entity):
 
             if options_file["show_fps"]:
                 self.fps_counter.setText("FPS: {0}".format(window.fps_counter.text))
-            self.direction = Vec3(camera.forward)
 
             def setCrosshairTip(tip_text):
                 self.crosshair_tip_text = tip_text
@@ -242,6 +247,18 @@ class Player(Entity):
             def getHitData():
                 if self.ray_hit.hit:
                     return self.ray_hit.entity
+
+            if setting.developer_mode:
+                self.hit_text = getHitData() if getHitData() else "None"
+                self.debug_text.text = "POS X: " + str(round(self.x, 2)) + \
+                                       "\nPOS Y: " + str(round(self.y, 2)) + \
+                                       "\nPOS Z: " + str(round(self.z, 2)) + \
+                                       "\n\nROT X: " + str(round(self.camera_pivot.rotation.x, 2)) + \
+                                       "\nROT Y: " + str(round(self.rotation.y, 2)) + \
+                                       "\nROT Z: " + str(round(self.camera_pivot.rotation.z, 2)) + \
+                                       "\n\nVEL X: " + str(round(mouse.velocity[0], 2)) + \
+                                       "\nVEL Y: " + str(round(mouse.velocity[1], 2)) + \
+                                       "\n\nHIT: " + str(self.hit_text)
 
             # РЭЙКАСТИНГ, ВЗАИМОДЕЙСТВИЕ С МИРОМ
             if self.ray_hit.hit:
@@ -264,6 +281,10 @@ class Player(Entity):
                 clearCrosshairText()
             # ---------------------------
             if self.mouse_control:
+
+                if mouse.velocity > 0 or mouse.velocity < 0:
+                    # пускаем луч
+                    self.ray_hit = raycast(self.position + (0, 20, 0), self.direction, ignore=(self,), distance=100, debug=setting.show_raycast_debug)
 
                 self.rotation_y += mouse.velocity[0] * self.mouse_sensitivity[1]
                 self.camera_pivot.rotation_x -= mouse.velocity[1] * self.mouse_sensitivity[0]
