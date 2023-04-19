@@ -29,6 +29,7 @@
 - ✅ Animation (only actor) 
 
 ###### Made in Autodesk Maya:
+![My Image](изображение_2023-04-19_132007064.png)
 ![My Image](screen2.png)
 ![My Image](screen.png)
-![My Image](screen3.png)
+
