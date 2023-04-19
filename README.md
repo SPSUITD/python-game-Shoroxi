@@ -31,3 +31,4 @@
 ###### Made in Autodesk Maya:
 ![My Image](screen2.png)
 ![My Image](screen.png)
+![My Image](screen3.png)
