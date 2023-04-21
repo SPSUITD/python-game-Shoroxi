@@ -7,6 +7,7 @@ import UrsinaLighting as ulight
 import my_json
 import setting
 import ui
+import pprint
 # то панда то урсина полное фуфло, а не свет делают.
 from PandaLighting import *
 
@@ -281,25 +282,24 @@ class Player(Entity):
                 clearCrosshairText()
             # ---------------------------
             if self.mouse_control:
-
-                if mouse.velocity > 0 or mouse.velocity < 0:
-                    # пускаем луч
-                    self.ray_hit = raycast(self.position + (0, 20, 0), self.direction, ignore=(self,), distance=100, debug=setting.show_raycast_debug)
+                self.direction = Vec3(camera.forward)
+                self.ray_hit = raycast(self.position + (0, 20, 0), self.direction, ignore=(self,), distance=100,
+                                       debug=setting.show_raycast_debug)
 
                 self.rotation_y += mouse.velocity[0] * self.mouse_sensitivity[1]
                 self.camera_pivot.rotation_x -= mouse.velocity[1] * self.mouse_sensitivity[0]
                 self.camera_pivot.rotation_x = clamp(self.camera_pivot.rotation_x, -60, 60) if not setting.developer_mode else clamp(self.camera_pivot.rotation_x, -90, 90)
 
-                self.direction = Vec3(
+                self.direction_1 = Vec3(
                     self.forward * (held_keys['w'] - held_keys['s'])
                     + self.right * (held_keys['d'] - held_keys['a'])).normalized()
 
-                feet_ray = raycast(self.position + Vec3(0, 0.5, 0), self.direction, ignore=(self,), distance=.5,
+                feet_ray = raycast(self.position + Vec3(0, 0.5, 0), self.direction_1, ignore=(self,), distance=.5,
                                    debug=False)
-                head_ray = raycast(self.position + Vec3(0, self.height - .1, 0), self.direction, ignore=(self,),
+                head_ray = raycast(self.position + Vec3(0, self.height - .1, 0), self.direction_1, ignore=(self,),
                                    distance=.5, debug=False)
                 if not feet_ray.hit and not head_ray.hit:
-                    move_amount = self.direction * time.dt * self.speed
+                    move_amount = self.direction_1 * time.dt * self.speed
 
                     if raycast(self.position + Vec3(-.0, 1, 0), Vec3(1, 0, 0), distance=.5, ignore=(self,)).hit:
                         move_amount[0] = min(move_amount[0], 0)
@@ -350,6 +350,9 @@ class Trigger(Entity):
         self.update_rate = 150
         self._i = 0
 
+        self.actor = Anims(anims_id="low")
+
+
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -366,28 +369,48 @@ class Trigger(Entity):
                 continue
             dist = distance(other, self)
             if other not in self.triggerers and dist <= self.radius:
-                print("Вошел в триггер:" + self.get_trigger_id())
-                self.triggerers.append(other)
-                if hasattr(self, 'on_trigger_enter'):
+                print("Вошел в триггер: " + self.get_trigger_id())
 
-                    # реализация события от id тригера - через другой файл с сюжетом
-                    if self.get_trigger_id() == "test":
-                        pass
-                    # invoke(self.play_anim)
-                    # invoke(self.add_quest)
+                if self.get_trigger_id() == "test":
+                    self.a.play_anim("MXManim")
+                self.triggerers.append(other)
+
+                if hasattr(self, 'on_trigger_enter'):
                     self.on_trigger_enter()
                 continue
 
             if other in self.triggerers and dist > self.radius:
-                print("Вышел")
+                print("Вышел: "+self.get_trigger_id())
+
+                if self.get_trigger_id() == "test":
+                    if not self.actor.isPlaying("MXManim"):
+                        destroy(self.actor)
                 self.triggerers.remove(other)
+
                 if hasattr(self, 'on_trigger_exit'):
                     self.on_trigger_exit()
                 continue
 
             if other in self.triggerers and hasattr(self, 'on_trigger_stay'):
-                # if self.trig.num and time==120:
                 self.on_trigger_stay()
+
+class Anims(Entity):
+    def __init__(self, anims_id, **kwargs):
+        super().__init__(scale=17)
+        self.actor = Actor(anim_folder + anims_id + ".gltf")
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def get_anims_id(self):
+        return self.anims_id
+
+    def play_anim(self, anim):
+        self.actor.reparent_to(self)
+        self.actor.play(anim)
+
+    def isPlaying(self, anim):
+        myAnimControl = self.actor.getAnimControl(anim)
+        return myAnimControl.isPlaying()
 
 # Главный класс игрового процесса
 class Gameplay(Entity):
@@ -403,8 +426,9 @@ class Gameplay(Entity):
         # передаём ссылку с созданным гг в уровень для дальнейшего доступа к классу гг
         invoke(self.player.load_location, player_creature["start_level"] if level is None else level,delay=0.00001)
         self.current_level = Level(self.player, level_id=player_creature["start_level"] if level is None else level)
+        pprint.pprint(self.current_level.level_objects)
         set_player_to_level_spawn_point()
-
+            
         gameplay = True
 
         for key, value in kwargs.items():
@@ -427,14 +451,6 @@ class Level(Entity):
         if os.path.isdir("assets/levels/" + str(self.level_id)):
             level_data = my_json.read("assets/levels/" + str(self.level_id) + "/level")
 
-            for anims in level_data["anims"]:
-                entity = Entity(parent=self, position=(1,-36,1), scale=16)
-                # animations are stored within the file
-                actor = Actor(anim_folder + anims["name"]+".gltf")
-                actor.reparent_to(entity)
-                actor.loop("MXManim")
-                self.level_objects.append(actor)
-
             for sounds in level_data["sound"]:
                 if sounds["type"] == "amb":
                     ambient = (sound_folder + "amb.opus")
@@ -454,7 +470,7 @@ class Level(Entity):
                             color=color.rgba(50, 0, 0, 1),
                             position=trigger["position"],
                             radius=trigger["radius"],
-                            trigger_id=trigger["name"])
+                            trigger_id=trigger["id"])
                 t.keys = trigger
                 self.level_objects.append(t)
 
@@ -520,14 +536,14 @@ class Level(Entity):
                 # звук от предмета
                 # if "sound" in obj and obj["sound"]:
                 #     lvl_obj.sound = obj["sound"]
-                #     play music
 
                 # название подбираемого предмета
                 if "name" in obj and obj["name"]:
                     lvl_obj.name = obj["name"]
 
                 if "shader" in obj and obj["shader"]:
-                    lvl_obj.shader = lit_with_shadows_shader
+                    # lvl_obj.shader = lit_with_shadows_shader
+                    lvl_obj.setShaderAuto()
 
                 scene.fog_density = 0.010
                 scene.fog_color = color.rgb(level_data["weather_color"][0], level_data["weather_color"][1], level_data["weather_color"][2])
@@ -537,7 +553,7 @@ class Level(Entity):
 
                 # присваиваем ему все ключи из файла с уровнем
                 lvl_obj.keys = obj
-                lvl_obj.setShaderAuto()
+                # lvl_obj.setShaderAuto()
                 self.level_objects.append(lvl_obj)
 
 class LevelObject(Entity):

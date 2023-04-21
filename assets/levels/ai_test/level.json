@@ -2,16 +2,34 @@
   "weather_color": [74, 116, 159],
   "trigger": [
     {
-      "type": "trigger",
-      "name": "test",
+      "id": "test",
       "model": "sphere",
-      "position": [1, 1, 1],
+      "position": [0, 0, 0],
       "radius": 30
+    },
+    {
+      "id": "window",
+      "model": "assets/levels/ai_test/win_trig",
+      "position": [0, 0, 0],
+      "radius": 15
+    },
+    {
+      "id": "cass",
+      "model": "assets/levels/ai_test/cass_trig",
+      "position": [0, 0, 0],
+      "radius": 15
+    },
+    {
+      "id": "trash",
+      "model": "assets/levels/ai_test/trash_trig",
+      "position": [0, 0, 0],
+      "radius": 15
     }
   ],
-  "anims": [
-    {
-      "name": "low"
+  "anims": [    {
+      "id": "anims",
+      "model": "low",
+      "scale": 17
     }
   ],
   "sound": [
@@ -94,12 +112,13 @@
     {
       "id": "spawn_point",
       "model": "sphere",
-      "position": [1, 1, 1]
+      "position": [0, 0, 0]
     },
     {
       "name": "ground",
       "model": "assets/levels/ai_test/gz_ground",
       "position": [0, -40, 0],
+      "shader": "yes",
       "rotation": [0, 0, 0],
       "collider": "mesh",
       "scale": 0.5
@@ -109,6 +128,7 @@
       "model": "assets/levels/ai_test/test_gaz_st",
       "texture": null,
       "position": [0, -40, 0],
+      "shader": "yes",
       "rotation": [0, 0, 0],
       "collider": "",
       "scale": 0.5
