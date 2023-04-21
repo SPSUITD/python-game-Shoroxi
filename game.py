@@ -191,18 +191,18 @@ class Player(Entity):
             #     self.flashlight.enabled = not self.flashlight.enabled
             #     self.torch.enabled = not self.torch.enabled
 
-            if held_keys['w'] or held_keys['a'] or held_keys['s'] or held_keys['d']:
-                # Head Bobbing
-                pos = Vec3(0, 0, 0)
-                pos.y += math.sin(self.timer * self.frequency) * self.amplitude / 1.5
-                pos.x += math.cos(self.timer * self.frequency * 0.5) * self.amplitude / 1.7
-                camera.position += pos
-                pos = Vec3(camera.position.x, camera.position.y + self.camHolder.y, camera.position.z)
-                pos += self.camHolder.forward * 15
-                camera.look_at(pos)
-
-                if not camera.position == self.camStartPos:
-                    camera.position = Vec3(lerp(camera.position, self.camStartPos, time.dt))
+            # TODO: Head Bobbing
+            # if held_keys['w'] or held_keys['a'] or held_keys['s'] or held_keys['d']:
+            #     pos = Vec3(0, 0, 0)
+            #     pos.y += math.sin(self.timer * self.frequency) * self.amplitude / 1.5
+            #     pos.x += math.cos(self.timer * self.frequency * 0.5) * self.amplitude / 1.7
+            #     camera.position += pos
+            #     pos = Vec3(camera.position.x, camera.position.y + self.camHolder.y, camera.position.z)
+            #     pos += self.camHolder.forward * 15
+            #     camera.look_at(pos)
+            #
+            #     if not camera.position == self.camStartPos:
+            #         camera.position = Vec3(lerp(camera.position, self.camStartPos, time.dt))
 
             if self.ray_hit.hit:
 
@@ -278,19 +278,19 @@ class Player(Entity):
                 clearCrosshairText()
             # ---------------------------
             if self.mouse_control:
-                # DEBUG
-                # self.direction = Vec3(camera.forward)
-                # self.ray_hit = raycast(self.position + (5, 24, 0), self.direction, ignore=(self,), distance=5, debug=True)
-
+                # Interact
+                self.direction = Vec3(camera.forward)
+                self.ray_hit = raycast(self.position + (0, 24, 0), self.direction, ignore=(self,), distance=20, debug=True)
+                # Camera
                 self.rotation_y += mouse.velocity[0] * self.mouse_sensitivity[1]
                 self.camera_pivot.rotation_x -= mouse.velocity[1] * self.mouse_sensitivity[0]
                 self.camera_pivot.rotation_x = clamp(self.camera_pivot.rotation_x, -60, 60) if not setting.developer_mode else clamp(self.camera_pivot.rotation_x, -90, 90)
-
+                # Movement
                 self.direction_move = Vec3(
                     self.forward * (held_keys['w'] - held_keys['s']) + self.right * (held_keys['d'] - held_keys['a'])).normalized()
 
                 feet_ray = raycast(self.position + Vec3(0, 3, 0), self.direction_move, ignore=(self,), distance=4, debug=False)
-                head_ray = raycast(self.position + (5, 24, 0), self.direction_move, ignore=(self,), distance=4, debug=False)
+                head_ray = raycast(self.position + (0, 24, 0), self.direction_move, ignore=(self,), distance=4, debug=False)
 
                 if not feet_ray.hit and not head_ray.hit:
                     move_amount = self.direction_move * time.dt * self.speed
@@ -335,16 +335,18 @@ class Audio3d(Audio):
 
 class Trigger(Entity):
     def __init__(self, **kwargs):
-        super().__init__()
+        super().__init__(position=[0,0,0])
         self.trigger_id = None
         self.trigger_targets = (self,)
         self.radius = None
+        self.scale = self.radius
+        self.color = color.rgba(10,10,10,50)
+
         self.triggerers = []
         self.update_rate = 150
         self._i = 0
 
         self.actor = Anims(anims_id="low")
-
 
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -363,7 +365,7 @@ class Trigger(Entity):
             dist = distance(other, self)
             if other not in self.triggerers and dist <= self.radius:
                 print("Вошел в триггер: " + self.get_trigger_id())
-
+                print(repr(self))
                 if self.get_trigger_id() == "test":
                     self.actor.play_anim("MXManim")
                 self.triggerers.append(other)
@@ -373,7 +375,7 @@ class Trigger(Entity):
                 continue
 
             if other in self.triggerers and dist > self.radius:
-                print("Вышел: "+self.get_trigger_id())
+                print("Вышел: " + self.get_trigger_id())
 
                 if self.get_trigger_id() == "test":
                     if not self.actor.isPlaying("MXManim"):
@@ -422,7 +424,7 @@ class Gameplay(Entity):
         self.current_level = Level(self.player, level_id=player_creature["start_level"] if level is None else level)
         pprint.pprint(self.current_level.level_objects)
         set_player_to_level_spawn_point()
-            
+
         gameplay = True
 
         for key, value in kwargs.items():
@@ -461,9 +463,9 @@ class Level(Entity):
 
             for trigger in level_data["trigger"]:
                 t = Trigger(parent=self, trigger_targets=(self.player_data,), model=trigger["model"],
-                            color=color.rgba(50, 0, 0, 1),
-                            position=trigger["position"],
+                            color=color.rgba(10, 10, 10, 70),
                             radius=trigger["radius"],
+                            scale=trigger["radius"],
                             trigger_id=trigger["id"])
                 t.keys = trigger
                 self.level_objects.append(t)

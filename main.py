@@ -62,7 +62,6 @@ if __name__ == "__main__":
 
     # Anti-aliasing
     filters.set_msaa(samples=8)
-    camera.shader = fxaa_shader
 
     scene = Gameplay()
     # scene = main_menu.MainMenu()

@@ -4,26 +4,7 @@
     {
       "id": "test",
       "model": "sphere",
-      "position": [0, 0, 0],
-      "radius": 30
-    },
-    {
-      "id": "window",
-      "model": "assets/levels/ai_test/win_trig",
-      "position": [0, 0, 0],
-      "radius": 15
-    },
-    {
-      "id": "cass",
-      "model": "assets/levels/ai_test/cass_trig",
-      "position": [0, 0, 0],
-      "radius": 15
-    },
-    {
-      "id": "trash",
-      "model": "assets/levels/ai_test/trash_trig",
-      "position": [0, 0, 0],
-      "radius": 15
+      "radius": 50
     }
   ],
   "sound": [
@@ -93,13 +74,6 @@
       "distance": 0.05,
       "shadows": false,
       "color": [74, 116, 159]
-    },
-    {
-      "type": "spot",
-      "position": [1, 100, 1],
-      "rotation": [0, 90, 60],
-      "distance": 0.1,
-      "color": [74, 116, 159]
     }
   ],
   "level_data": [
@@ -136,15 +110,75 @@
       "rotation": [0, 0, 0],
       "collider": "",
       "scale": 0.5
-    },
-    {
+    }, {
       "id": "loot",
-      "loot_id": "test_loot",
-      "model": "cube",
-      "position": [-16, 17, 0.03],
-      "rotation": [0, 0, 0],
+      "loot_id": "light",
+      "model": "assets/levels/ai_test/loot/light",
       "collider": "box",
-      "scale": 10
+      "scale": 0.5
+    }, {
+    "id": "loot",
+    "loot_id": "phone",
+    "model": "assets/levels/ai_test/loot/phone",
+    "position": [0, -40, 0],
+    "collider": "box",
+    "scale": 0.5
+    }, {
+    "id": "loot",
+    "loot_id": "radio",
+    "model": "assets/levels/ai_test/loot/radio",
+    "position": [0, -40, 0],
+    "collider": "box",
+    "scale": 0.5
+    }, {
+    "id": "loot",
+    "loot_id": "trash_floor_1",
+    "model": "assets/levels/ai_test/loot/trash_floor_1",
+    "position": [0, -40, 0],
+    "collider": "box",
+    "scale": 0.5
+    }, {
+    "id": "loot",
+    "loot_id": "trash_floor_2",
+    "model": "assets/levels/ai_test/loot/trash_floor_2",
+    "position": [0, -40, 0],
+    "collider": "box",
+    "scale": 0.5
+    }, {
+    "id": "loot",
+    "loot_id": "trash_floor_3",
+    "model": "assets/levels/ai_test/loot/trash_floor_3",
+    "position": [0, -40, 0],
+    "collider": "box",
+    "scale": 0.5
+    }, {
+    "id": "loot",
+    "loot_id": "fuel",
+    "model": "assets/levels/ai_test/loot/fuel",
+    "position": [0, -40, 0],
+    "collider": "box",
+    "scale": 0.5
+    }, {
+    "id": "loot",
+    "loot_id": "vent",
+    "model": "assets/levels/ai_test/loot/vent",
+    "position": [0, -40, 0],
+    "collider": "box",
+    "scale": 0.5
+    },    {
+    "id": "loot",
+    "loot_id": "black_door",
+    "model": "assets/levels/ai_test/loot/black_door",
+    "position": [0, -40, 0],
+    "collider": "box",
+    "scale": 0.5
+    },    {
+    "id": "loot",
+    "loot_id": "trash_out",
+    "model": "assets/levels/ai_test/loot/trash_out",
+    "position": [0, -40, 0],
+    "collider": "box",
+    "scale": 0.5
     }
   ]
 }
