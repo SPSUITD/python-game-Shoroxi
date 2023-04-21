@@ -103,7 +103,7 @@ class Player(Entity):
         self.air_time = 0
         # ------------ Ray ---------------
         self.hit_text = "None"
-        self.ray_hit = raycast(self.position + (0, 20, 0), self.direction, ignore=(self,), distance=100, debug=True)
+        self.ray_hit = raycast(self.position + (0, 20, 0), self.direction, ignore=(self,), distance=100, debug=False)
         # ------------ Ui ---------------
         self.press_e = ui.UIText("press [E]", parent=camera.ui,offset=(0.0018,0.0018), y=-0.35, enabled=False, color=color.white,origin=(0,0))
         self.fps_counter = ui.UIText("", (0.0018, 0.0018), color=setting.color_orange, position=(window.right.x - 0.13, window.top.y - .1))
@@ -127,10 +127,6 @@ class Player(Entity):
                                             scale=Vec2(0.3, 0.35))
             self.debug_text = Text(parent=camera.ui, text="null", color=setting.color_orange, origin=(-.5, .5),
                                    position=(window.top_left.x + 0.03, window.top_left.y - 0.095, -0.003))
-
-        # TODO: Enable menu
-        # if pause:
-        #     self.pause_menu.enable()
 
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -186,9 +182,11 @@ class Player(Entity):
                 # s_sys.play_sound(steps_sound)
                 pass
 
+            # TODO: step sound
             # if not (key == 'w') and self.steps_sound.get_state() == AL_PLAYING:
             #     oalQuit()
 
+            # TODO: flashlight
             # if keypress == 'f':
             #     self.flashlight.enabled = not self.flashlight.enabled
             #     self.torch.enabled = not self.torch.enabled
@@ -215,18 +213,16 @@ class Player(Entity):
                     if getHitData().id == "loot":
                         if keypress == "e" and game_session:
                             invoke(self.raycast_once, delay=.05)
-                            getHitData().animate_position(value=self.position, duration=1, curve=curve.linear)
-                            # destroy(getHitData(), delay=1)
-                    if getHitData().id == "npc":
-                        if keypress == "e" and game_session:
-                            invoke(self.raycast_once, delay=.05)
+                            # getHitData().animate_position(value=self.position, duration=1, curve=curve.linear)
                             destroy(getHitData(), delay=1)
-                    if getHitData().id == "tr" and self.t.get_trigger_id() == "test":
-                        if keypress == "e" and game_session:
-                            invoke(self.raycast_once, delay=.05)
-                            destroy(getHitData(), delay=1)
+                    # if getHitData().id == "npc":
+                    #     if keypress == "e" and game_session:
+                    #         invoke(self.raycast_once, delay=.05)
+                    #         destroy(getHitData(), delay=1)
 
             if keypress == "escape" and not self.dialogue.enabled:
+                # TODO: pause menu
+                # pause = True
                 pass
 
     # ФУНКЦИЯ ОБНОВЛЕНИЯ ДЛЯ КАЖДОГО КАДРА
@@ -282,32 +278,29 @@ class Player(Entity):
                 clearCrosshairText()
             # ---------------------------
             if self.mouse_control:
-                self.direction = Vec3(camera.forward)
-                self.ray_hit = raycast(self.position + (0, 20, 0), self.direction, ignore=(self,), distance=100,
-                                       debug=setting.show_raycast_debug)
+                # DEBUG
+                # self.direction = Vec3(camera.forward)
+                # self.ray_hit = raycast(self.position + (5, 24, 0), self.direction, ignore=(self,), distance=5, debug=True)
 
                 self.rotation_y += mouse.velocity[0] * self.mouse_sensitivity[1]
                 self.camera_pivot.rotation_x -= mouse.velocity[1] * self.mouse_sensitivity[0]
                 self.camera_pivot.rotation_x = clamp(self.camera_pivot.rotation_x, -60, 60) if not setting.developer_mode else clamp(self.camera_pivot.rotation_x, -90, 90)
 
-                self.direction_1 = Vec3(
-                    self.forward * (held_keys['w'] - held_keys['s'])
-                    + self.right * (held_keys['d'] - held_keys['a'])).normalized()
+                self.direction_move = Vec3(
+                    self.forward * (held_keys['w'] - held_keys['s']) + self.right * (held_keys['d'] - held_keys['a'])).normalized()
 
-                feet_ray = raycast(self.position + Vec3(0, 0.5, 0), self.direction_1, ignore=(self,), distance=.5,
-                                   debug=False)
-                head_ray = raycast(self.position + Vec3(0, self.height - .1, 0), self.direction_1, ignore=(self,),
-                                   distance=.5, debug=False)
+                feet_ray = raycast(self.position + Vec3(0, 3, 0), self.direction_move, ignore=(self,), distance=4, debug=False)
+                head_ray = raycast(self.position + (5, 24, 0), self.direction_move, ignore=(self,), distance=4, debug=False)
+
                 if not feet_ray.hit and not head_ray.hit:
-                    move_amount = self.direction_1 * time.dt * self.speed
-
-                    if raycast(self.position + Vec3(-.0, 1, 0), Vec3(1, 0, 0), distance=.5, ignore=(self,)).hit:
+                    move_amount = self.direction_move * time.dt * self.speed
+                    if raycast(self.position + Vec3(-.0, 1, 0), Vec3(1, 0, 0), distance=4, ignore=(self,)).hit:
                         move_amount[0] = min(move_amount[0], 0)
-                    if raycast(self.position + Vec3(-.0, 1, 0), Vec3(-1, 0, 0), distance=.5, ignore=(self,)).hit:
+                    if raycast(self.position + Vec3(-.0, 1, 0), Vec3(-1, 0, 0), distance=4, ignore=(self,)).hit:
                         move_amount[0] = max(move_amount[0], 0)
-                    if raycast(self.position + Vec3(-.0, 1, 0), Vec3(0, 0, 1), distance=.5, ignore=(self,)).hit:
+                    if raycast(self.position + Vec3(-.0, 1, 0), Vec3(0, 0, 1), distance=4, ignore=(self,)).hit:
                         move_amount[2] = min(move_amount[2], 0)
-                    if raycast(self.position + Vec3(-.0, 1, 0), Vec3(0, 0, -1), distance=.5, ignore=(self,)).hit:
+                    if raycast(self.position + Vec3(-.0, 1, 0), Vec3(0, 0, -1), distance=4, ignore=(self,)).hit:
                         move_amount[2] = max(move_amount[2], 0)
                     self.position += move_amount
             # ---------------------------
@@ -372,7 +365,7 @@ class Trigger(Entity):
                 print("Вошел в триггер: " + self.get_trigger_id())
 
                 if self.get_trigger_id() == "test":
-                    self.a.play_anim("MXManim")
+                    self.actor.play_anim("MXManim")
                 self.triggerers.append(other)
 
                 if hasattr(self, 'on_trigger_enter'):
@@ -398,6 +391,8 @@ class Anims(Entity):
     def __init__(self, anims_id, **kwargs):
         super().__init__(scale=17)
         self.actor = Actor(anim_folder + anims_id + ".gltf")
+        self.actor.reparent_to(self)
+
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -405,7 +400,6 @@ class Anims(Entity):
         return self.anims_id
 
     def play_anim(self, anim):
-        self.actor.reparent_to(self)
         self.actor.play(anim)
 
     def isPlaying(self, anim):
@@ -518,10 +512,10 @@ class Level(Entity):
                                       rotation=obj["rotation"] if "rotation" in obj else (0,0,0),
                                       scale=obj["scale"] if "scale" in obj else 1,
                                       double_sided=obj["double_sided"] if "double_sided" in obj else False,
-                                      color=color.rgba(obj["color"][0], obj["color"][1], obj["color"][2],obj["color"][3])
+                                      color=color.rgba(obj["color"][0], obj["color"][1], obj["color"][2], obj["color"][3])
                                       if "color" in obj
                                       else color.white if "id" not in obj
-                                      else color.clear if "invisible" in obj and obj["invisible"]
+                                      else color.clear if "invisible" in obj
                                       else color.clear,
                                       id=obj["id"] if "id" in obj else None)
 
