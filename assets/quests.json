@@ -1,0 +1,12 @@
+[
+    {
+        "id": "quest_1",
+        "title": "quest.1.name",
+        "quest_items": ["medkit_1"]
+    },
+    {
+        "id": "quest_find_camp",
+        "title": "quest.camp.name",
+        "quest_items": []
+    }
+]

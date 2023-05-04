@@ -26,9 +26,6 @@ void main() {
 }
 ''')
 
-
-from ursina import *
-
 ouline_shader = Shader(
 vertex='''
 #version 130
@@ -39,7 +36,6 @@ void main()  {
   gl_Position = p3d_ModelViewProjectionMatrix * p3d_Vertex;
 }
 ''',
-
 fragment='''
 #version 130
 uniform sampler2D tex;

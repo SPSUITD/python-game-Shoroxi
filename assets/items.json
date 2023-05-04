@@ -1,0 +1,14 @@
+{
+  "medkit_1": {
+    "name": "itm.medkit.name",
+    "caption": "Medkit"
+  },
+    "medkit_2": {
+    "name": "itm.medkit_2.name",
+    "caption": "Medkit"
+  },
+    "medkit_3": {
+    "name": "itm.medkit_3.name",
+    "caption": "Medkit"
+  }
+}
