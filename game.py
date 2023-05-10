@@ -468,11 +468,9 @@ class Gameplay(Entity):
         # pprint.pprint(self.current_level.level_objects)
         set_player_to_level_spawn_point()
 
-        invoke(show_message, "Зайдите в свой магазин", 5, delay=0.001)
         gameplay = True
-        a = Audio(sound_folder+"amb", autoplay=False, loop=True)
-        # self.click_sound = Audio(sound_folder + "spider_hiss", autoplay=False, loop=False)
-        a.play()
+        invoke(show_message, "Зайдите в свой магазин", 5, delay=0.001)
+        Audio(sound_folder+"amb", volume=0.1, autoplay=False, loop=True).play()
         for key, value in kwargs.items():
             setattr(self, key, value)
 

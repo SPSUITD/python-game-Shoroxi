@@ -25,7 +25,7 @@ class MainMenu(Entity):
             "Настройки",
             "Выход"
         ]
-        self.click_sound = Audio(sound_folder + "spider_hiss", autoplay=False, loop=False)
+        self.click_sound = Audio(sound_folder + "click", autoplay=False, loop=False)
         self.main_menu = Entity(parent=self, enabled=True)
         Entity(parent=self.main_menu, model="quad", color=rgb(2, 2, 0), scale=2)
         Sprite(parent=self.main_menu, texture=bg_mm, y=0.1, scale=0.5)
