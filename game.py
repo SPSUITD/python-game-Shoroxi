@@ -10,15 +10,11 @@ import ui
 import pprint
 
 from inventory_system import Inventory
-from quests_system import Quests
-import story
 
 # то панда то урсина полное фуфло, а не свет делают.
 from PandaLighting import *
 
 anim_folder = "assets/animations/"
-tex_folder = "assets/textures/"
-mesh_folder = "assets/models/"
 ui_folder = "assets/ui/"
 sound_folder = "assets/sounds/"
 
@@ -76,14 +72,13 @@ def set_player_to_level_spawn_point():
     get_player().position = get_current_level().spawn_point["position"]
 
 class Player(Entity):
-    def hideHUD(self):
-        return color.rgba(1,1,1,0) if not setting.show_hud else color.rgba(1,1,1,1)
 
     def __init__(self, **kwargs):
         super().__init__(
             model="cube",
             visible_self=False,
-            scale=(25,25,25)
+            scale=(25,25,25),
+            render_queue=0
         )
         # ------------ Camera 1 ---------------
         self.camera_pivot = Entity(parent=self, y=1)
@@ -112,14 +107,13 @@ class Player(Entity):
         self.jumping = False
         self.air_time = 0
         self.inventory = Inventory()
-        self.quests = Quests()
         # ------------ Ray ---------------
-        self.hit_text = "None"
+        # self.hit_text = "None"
         self.ray_hit = raycast(self.position + (0, 20, 0), self.direction, ignore=(self,), distance=100, debug=False)
         # ------------ Ui ---------------
         self.press_e = ui.UIText("press [E]", parent=camera.ui,offset=(0.0018,0.0018), y=-0.35, enabled=False, color=color.white,origin=(0,0))
         self.fps_counter = ui.UIText("", (0.0018, 0.0018), color=setting.color_orange, position=(window.right.x - 0.13, window.top.y - .1))
-        self.cursor = Sprite(ui_folder + "crosshair.png", parent=camera.ui, scale=.005, color=self.hideHUD())
+        # self.cursor = Sprite(ui_folder + "crosshair.png", parent=camera.ui, scale=.005, color=self.hideHUD())
         self.crosshair_tip_text = ""
         self.crosshair_tip = ui.UIText(parent=camera.ui, offset=(0.0015,0.0015), text=self.crosshair_tip_text, origin=(0, 0), y=0.04,
                                        color=color.white, scale=1, x=0, z=-0.001)
@@ -235,16 +229,9 @@ class Player(Entity):
                         if keypress == "e" and game_session:
                             invoke(self.raycast_once, delay=.05)
                             # getHitData().animate_position(value=self.position, duration=1, curve=curve.linear)
-                            self.inventory.add_item(getHitData().keys["loot_name"])  # в поднятие предмета
-                            destroy(getHitData(), delay=1)
+                            self.inventory.add_item(getHitData().keys["loot_name"])  # поднятие предмета
+                            # destroy(getHitData(), delay=1)
                             self.crosshair_tip_text = ""
-
-                            story.two_qs()
-
-                    # if getHitData().id == "npc":
-                    #     if keypress == "e" and game_session:
-                    #         invoke(self.raycast_once, delay=.05)
-                    #         destroy(getHitData(), delay=1)
 
             if keypress == "escape" and not self.dialogue.enabled:
                 # TODO: pause menu
@@ -271,47 +258,56 @@ class Player(Entity):
                 if self.ray_hit.hit:
                     return self.ray_hit.entity
 
-            if setting.developer_mode:
-                self.hit_text = getHitData() if getHitData() else "None"
-                self.debug_text.text = "POS X: " + str(round(self.x, 2)) + \
-                                       "\nPOS Y: " + str(round(self.y, 2)) + \
-                                       "\nPOS Z: " + str(round(self.z, 2)) + \
-                                       "\n\nROT X: " + str(round(self.camera_pivot.rotation.x, 2)) + \
-                                       "\nROT Y: " + str(round(self.rotation.y, 2)) + \
-                                       "\nROT Z: " + str(round(self.camera_pivot.rotation.z, 2)) + \
-                                       "\n\nVEL X: " + str(round(mouse.velocity[0], 2)) + \
-                                       "\nVEL Y: " + str(round(mouse.velocity[1], 2)) + \
-                                       "\n\nHIT: " + str(self.hit_text)
+            # if setting.developer_mode:
+            #     self.hit_text = getHitData() if getHitData() else "None"
+            #     self.debug_text.text = "POS X: " + str(round(self.x, 2)) + \
+            #                            "\nPOS Y: " + str(round(self.y, 2)) + \
+            #                            "\nPOS Z: " + str(round(self.z, 2)) + \
+            #                            "\n\nROT X: " + str(round(self.camera_pivot.rotation.x, 2)) + \
+            #                            "\nROT Y: " + str(round(self.rotation.y, 2)) + \
+            #                            "\nROT Z: " + str(round(self.camera_pivot.rotation.z, 2)) + \
+            #                            "\n\nVEL X: " + str(round(mouse.velocity[0], 2)) + \
+            #                            "\nVEL Y: " + str(round(mouse.velocity[1], 2)) + \
+            #                            "\n\nHIT: " + str(self.hit_text)
 
             # РЭЙКАСТИНГ, ВЗАИМОДЕЙСТВИЕ С МИРОМ
             if self.ray_hit.hit:
                 if getHitData() is not None:
                     # TODO: name key for id items
-                    if getHitData().id == "fuel":
-                        setCrosshairTip("Проверить топливо")
-                    if getHitData().id == "radio":
-                        setCrosshairTip("Радио")
-                    if getHitData().id == "light":
-                        setCrosshairTip("Свет")
-                    if getHitData().id == "black_door":
-                        setCrosshairTip("Открыть дверь")
-                    if getHitData().id == "trash_out":
-                        setCrosshairTip("Выкинуть")
-                    if getHitData().id == "trash_floor_1" or "trash_floor_2" or "trash_floor_3":
-                        setCrosshairTip("Собрать")
-                    if getHitData().id == "vent":
-                        setCrosshairTip("Вентилятор")
-                    if getHitData().id == "phone":
-                        setCrosshairTip("Телефон")
+                    setCrosshairTip("Press E")
+
+
+                    # if getHitData().id == "fuel":
+                    #     setCrosshairTip("Проверить топливо")
+                    # if getHitData().id == "radio":
+                    #     setCrosshairTip("Радио")
+                    # if getHitData().id == "light":
+                    #     setCrosshairTip("Свет")
+                    # if getHitData().id == "black_door":
+                    #     setCrosshairTip("Открыть дверь")
+                    # if getHitData().id == "trash_out":
+                    #     setCrosshairTip("Выкинуть")
+                    # if getHitData().id == "trash_floor_1" or "trash_floor_2" or "trash_floor_3":
+                    #     setCrosshairTip("Собрать")
+                    # if getHitData().id == "vent":
+                    #     setCrosshairTip("Вентилятор")
+                    # if getHitData().id == "phone":
+                    #     setCrosshairTip("Телефон")
                     if getHitData().id == "" or getHitData().id is None:
                         clearCrosshairText()
-
                 else:
                     self.cursor.color = color.white
             else:
                 clearCrosshairText()
             # ---------------------------
             if self.mouse_control:
+
+                if self.inventory.has_item("light"):
+                    invoke(show_message, "Соберите весь мусор", 5, delay=0.001)
+                if self.inventory.has_item("tv"):
+                    invoke(show_message, "Проверьте товар на полках", 5, delay=0.001)
+
+
                 # Interact
                 self.direction = Vec3(camera.forward)
                 self.ray_hit = raycast(self.position + (0, 24, 0), self.direction, ignore=(self,), distance=20, debug=True)
@@ -401,21 +397,34 @@ class Trigger(Entity):
 
             # Вошел
             if other not in self.triggerers and dist <= self.radius:
-                print("Вошел в триггер: " + self.get_trigger_id())
+                # print("Вошел в триггер: " + self.get_trigger_id())
                 # print(repr(self))
                 # if self.get_trigger_id() == "test":
                 #     self.actor.play_anim("MXManim")
                 self.triggerers.append(other)
                 set_current_status(self.get_trigger_id())
+
+                if get_current_status() == "door_enter":
+                    invoke(show_message, "Включите свет", 5, delay=0.001)
+                if get_current_status() == "trash_out":
+                    invoke(show_message, "Включите телевизор", 5, delay=0.001)
+                if get_current_status() == "stash":
+                    invoke(show_message, "Проверьте окно", 5, delay=0.001)
+                    invoke(show_message, "Представьте что вы взяли пистолет из под прилавка", 5, delay=7)
+                if get_current_status() == "cass":
+                    invoke(show_message, "Проверьте кто это был", 5, delay=7)
+
+
                 if hasattr(self, 'on_trigger_enter'):
                     self.on_trigger_enter()
                 continue
 
             # Вышел
             if other in self.triggerers and dist > self.radius:
-                print("Вышел: " + self.get_trigger_id())
+                # print("Вышел: " + self.get_trigger_id())
                 self.triggerers.remove(other)
-                print("Статус: " + get_current_status())
+
+
                 if hasattr(self, 'on_trigger_exit'):
                     self.on_trigger_exit()
                 continue
@@ -459,10 +468,11 @@ class Gameplay(Entity):
         # pprint.pprint(self.current_level.level_objects)
         set_player_to_level_spawn_point()
 
-        story.first_qs()
-
+        invoke(show_message, "Зайдите в свой магазин", 5, delay=0.001)
         gameplay = True
-
+        a = Audio(sound_folder+"amb", autoplay=False, loop=True)
+        # self.click_sound = Audio(sound_folder + "spider_hiss", autoplay=False, loop=False)
+        a.play()
         for key, value in kwargs.items():
             setattr(self, key, value)
 

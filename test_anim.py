@@ -10,4 +10,6 @@ actor = Actor(anim_folder)
 actor.reparent_to(entity)
 actor.loop("MXManim")
 
+
+
 app.run()

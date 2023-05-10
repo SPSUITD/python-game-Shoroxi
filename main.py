@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # Anti-aliasing
     filters.set_msaa(samples=8)
 
-    scene = Gameplay()
-    # scene = main_menu.MainMenu()
+    # scene = Gameplay()
+    scene = main_menu.MainMenu()
 
     app.run()

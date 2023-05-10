@@ -1,12 +1,23 @@
 [
     {
         "id": "quest_1",
-        "title": "quest.1.name",
-        "quest_items": ["medkit_1"]
-    },
-    {
-        "id": "quest_find_camp",
-        "title": "quest.camp.name",
-        "quest_items": []
+        "title": "pickup all trash",
+        "quest_items": [""]
+    },  {
+        "id": "quest_2",
+        "title": "Clear window",
+        "quest_items": ["light"]
+    },    {
+        "id": "quest_3",
+        "title": "Check fuel",
+        "quest_items": [""]
+    },    {
+        "id": "quest_4",
+        "title": "",
+        "quest_items": [""]
+    },    {
+        "id": "quest_5",
+        "title": "",
+        "quest_items": [""]
     }
 ]

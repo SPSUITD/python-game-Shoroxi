@@ -1,7 +1,5 @@
 from ursina import *
-import game
 import my_json
-import ui
 
 i_db = my_json.read("assets/items")
 player_creature = my_json.read("assets/player")
@@ -30,11 +28,15 @@ class Inventory(Entity):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-
     def add_item(self, item_id):
         if item_id in i_db:
-            self.items_in_inventory.append(
-                ItemNew(item_id=item_id, item_data=i_db[item_id]))
-            print("Подобрал [{0}]".format(item_id),1)
+            if not has_item:
+                self.items_in_inventory.append(
+                    ItemNew(item_id=item_id, item_data=i_db[item_id]))
+                print("Подобрал [{0}]".format(item_id),1)
         else:
             print("Ошибка Item ID - [{0}]! объект не найден в assets/items.json!".format(item_id),1)
+
+    def has_item(self, item_id):
+        if item_id in self.items_in_inventory:
+            return True

@@ -17,7 +17,7 @@
       "position": [-129.036, -35, 334.473],
       "radius": 20
     },    {
-      "id": "door",
+      "id": "door_enter",
       "model": "sphere",
       "position": [-41.5856, -35, 130.608],
       "radius": 25
@@ -143,32 +143,36 @@
       "collider": "box",
       "scale": 0.5
     }, {
-      "id": "loot",
-      "loot_name": "medkit_1",
+      "id": "radio",
+      "loot_name": "radio",
       "model": "assets/levels/ai_test/loot/radio",
       "position": [0, -40, 0],
       "collider": "box",
       "scale": 0.5
     }, {
       "id": "trash_floor_1",
+      "loot_name": "trash_1",
       "model": "assets/levels/ai_test/loot/trash_floor_1",
       "position": [0, -40, 0],
       "collider": "box",
       "scale": 0.5
     }, {
       "id": "trash_floor_2",
+      "loot_name": "trash_2",
       "model": "assets/levels/ai_test/loot/trash_floor_2",
       "position": [0, -40, 0],
       "collider": "box",
       "scale": 0.5
     }, {
       "id": "trash_floor_3",
+      "loot_name": "trash_3",
       "model": "assets/levels/ai_test/loot/trash_floor_3",
       "position": [0, -40, 0],
       "collider": "box",
       "scale": 0.5
     }, {
-      "id": "fuel",
+      "id": "fuel_station",
+      "loot_name": "fuel",
       "model": "assets/levels/ai_test/loot/fuel",
       "position": [0, -40, 0],
       "collider": "box",
@@ -187,6 +191,7 @@
       "scale": 0.5
     },    {
       "id": "trash_out",
+      "loot_name": "trash_out",
       "model": "assets/levels/ai_test/loot/trash_out",
       "position": [0, -40, 0],
       "collider": "box",

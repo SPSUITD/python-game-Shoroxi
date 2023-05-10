@@ -2,8 +2,10 @@ from ursina import *
 import setting
 import game
 import main_menu
+
 ui_folder = "assets/ui/"
 message_box = ui_folder+"message_box.png"
+
 class UIText(Text):
     def hideHUD(self):
         return color.rgba(1,1,1,0) if not setting.show_hud else color.rgba(1,1,1,1)
@@ -12,9 +14,6 @@ class UIText(Text):
         super().__init__(parent=camera.ui, origin=origin)
         self.shadow = True
 
-        if self.shadow:
-            self.shadow_text = Text(text=dedent(text).strip(),parent=self,origin=self.origin,x=self.x+offset[0],
-                                y=self.y-offset[1],color=rgb(10,10,10) if setting.show_hud else self.hideHUD(),z=self.z+0.001)
         self.origin_text = Text(text=dedent(text).strip(), parent=self, origin=self.origin,color = color,x=self.x,
                                 y=self.y,z=self.z)
 
@@ -22,8 +21,6 @@ class UIText(Text):
             setattr (self, key, value)
 
     def setText(self,text):
-        if self.shadow:
-            self.shadow_text.text = text
         self.origin_text.text = dedent(text).strip()
 
 # MESSAGE BOX
