@@ -133,6 +133,7 @@
       "scale": 0.5
     }, {
       "id": "light",
+      "loot_name": "light",
       "model": "assets/levels/ai_test/loot/light",
       "collider": "box",
       "scale": 0.5
@@ -144,8 +145,29 @@
       "scale": 0.5
     }, {
       "id": "radio",
-      "loot_name": "radio",
       "model": "assets/levels/ai_test/loot/radio",
+      "position": [0, -40, 0],
+      "collider": "box",
+      "scale": 0.5,
+
+    },{
+      "id": "pistol",
+      "loot_name": "pistol",
+      "model": "assets/levels/ai_test/loot/pistol",
+      "position": [0, -40, 0],
+      "collider": "box",
+      "scale": 0.5
+    },{
+      "id": "tv",
+      "loot_name": "tv",
+      "model": "assets/levels/ai_test/loot/tv",
+      "position": [0, -40, 0],
+      "collider": "box",
+      "scale": 0.5
+    },{
+      "id": "tovar",
+      "loot_name": "tovar",
+      "model": "assets/levels/ai_test/loot/tovar",
       "position": [0, -40, 0],
       "collider": "box",
       "scale": 0.5
@@ -172,7 +194,6 @@
       "scale": 0.5
     }, {
       "id": "fuel_station",
-      "loot_name": "fuel",
       "model": "assets/levels/ai_test/loot/fuel",
       "position": [0, -40, 0],
       "collider": "box",

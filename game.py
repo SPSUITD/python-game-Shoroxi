@@ -384,6 +384,17 @@ class Trigger(Entity):
     def get_trigger_id(self):
         return self.trigger_id
 
+    def check_itm(self, itm):
+        if get_player().inventory.has_item(itm):
+            return True
+        else:
+            pass
+            # уведомление
+
+    def add_itm(self, itm):
+        get_player().inventory.add_item(itm)
+        # уведомление
+
     def update(self):
         self._i += 1
         if self._i < self.update_rate:
@@ -405,14 +416,49 @@ class Trigger(Entity):
                 set_current_status(self.get_trigger_id())
 
                 if get_current_status() == "door_enter":
-                    invoke(show_message, "Включите свет", 5, delay=0.001)
+                    if check_itm("pistol"):
+                        # finish
+                        pass
+                    else:
+                        # dead
+                        pass
+
+                    if not check_itm("trash") or not check_itm("light"):
+                        invoke(show_message, "Включите свет", 5, delay=0.001)
+
                 if get_current_status() == "trash_out":
-                    invoke(show_message, "Включите телевизор", 5, delay=0.001)
+                    if check_itm("trash") and check_itm("all_trash"):
+                        invoke(show_message, "Включите телевизор", 5, delay=0.001)
+
+                if get_current_status() == "tv":
+                    if check_itm("trash") and check_itm("all_trash"):
+                        if check_itm("tv"):
+                            # врубить тв
+                            invoke(show_message, "проверьте товар", 5, delay=0.001)
+
                 if get_current_status() == "stash":
-                    invoke(show_message, "Проверьте окно", 5, delay=0.001)
-                    invoke(show_message, "Представьте что вы взяли пистолет из под прилавка", 5, delay=7)
+                    if check_itm("trash_out") and check_itm("tv"):
+                        if check_itm("tovar"):
+                            # отрубить звук тв
+                            invoke(show_message, "Проверьте окно", 5, delay=0.001)
+                            # пугающий звук у окна, упавший товар
+                            Audio(sound_folder + "spider_hiss", volume=5, autoplay=False, loop=False).play()
+                            # закрыть выход
+                            Entity()
+
+                if get_current_status() == "window":
+                    if check_itm("tovar"):
+                        actor = Actor(anim_folder+"goblin.gltf")
+                        actor.reparent_to(Entity(position=(0,0,0), scale=16))
+                        actor.play("jump")
+
+                        invoke(show_message, "Представьте что вы взяли пистолет из под прилавка", 5, delay=7)
+
                 if get_current_status() == "cass":
-                    invoke(show_message, "Проверьте кто это был", 5, delay=7)
+                    if check_itm("tovar"):
+                        add_itm("pistol")
+                    if check_itm("pistol"):
+                        invoke(show_message, "Проверьте кто это был", 5, delay=7)
 
 
                 if hasattr(self, 'on_trigger_enter'):
@@ -458,6 +504,10 @@ class Gameplay(Entity):
         global gameplay
         global game_session
         global pause
+
+        options = my_json.read("assets/options")
+        window.fps_counter.enabled = options["show_fps"]
+        window.fullscreen = options["fullscreen"]
 
         pause = False
         game_session = self

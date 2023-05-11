@@ -78,11 +78,15 @@ class Options(Entity):
         self.options = my_json.read("assets/options")
         self.options_menu = Entity(parent=camera.ui, enabled=False)
 
+        self.sens = self.options["mouse_sensitivity"]
         self.fps_show_mode = self.options["show_fps"]
-        self.autodotect_size = self.options["autodetect"]
+        self.fullscreen = self.options["fullscreen"]
+        self.window_size = self.options["window_size"]
 
         self.option_selector = 0
         self.option_punkts_list = []
+        self.value_selector = 0
+
         Entity(parent=self.options_menu, model="quad", color=rgb(2, 2, 0), scale=2)
 
         self.frame = Sprite(bg_options, parent=self.options_menu, scale=0.222)
@@ -92,10 +96,10 @@ class Options(Entity):
              text="Настройки", y=window.top.y - 0.1, origin=(0.05, 0),
              color=setting.color_orange)
         # -------------
-        self.lang_punkt = Text(parent=self.options_menu, text="Что-то", origin=(-.5, 0), x=-0.4,
+        self.lang_punkt = Text(parent=self.options_menu, text="mouse_sens", origin=(-.5, 0), x=-0.4,
                                y=0.2)
         self.lang_text = ui.UIText(parent=self.options_menu, color=setting.color_orange,
-                                   text="[{0}]".format("Да" if self.options["show_fps"] else "Нет"),
+                                   text="[{0}]".format(self.sens),
                                    origin=(.5, -.5), x=0.3, y=0.21)
         # -------------
         self.fps_punkt = Text(parent=self.options_menu, text="Отображение фпс", origin=(-.5, 0), x=-0.4, y=0.15)
@@ -103,9 +107,9 @@ class Options(Entity):
                                   text="[{0}]".format("Да" if self.options["show_fps"] else "Нет"),
                                   origin=(.5, -.5), x=0.3, y=0.16)
         # -------------
-        self.autodetect_punkt = Text(parent=self.options_menu, text="авто разрешение", origin=(-.5, 0), x=-0.4, y=0.08)
+        self.autodetect_punkt = Text(parent=self.options_menu, text="На весь экран", origin=(-.5, 0), x=-0.4, y=0.08)
         self.auto_text = ui.UIText(parent=self.options_menu, color=setting.color_orange,
-                                   text="[{0}]".format("Да" if self.options["autodetect"] else "Нет"),
+                                   text="[{0}]".format("Да" if self.options["fullscreen"] else "Нет"),
                                    origin=(.5, -.5), x=0.3, y=0.07)
         # -------------
         self.apply_punkt = Text(parent=self.options_menu,
@@ -131,6 +135,8 @@ class Options(Entity):
             scene.main_menu.enable()
             self.option_selector = 0
             self.options_menu.disable()
+
+        # ------------ Selector ---------------
 
         if key == "w" or key == "up arrow":
             if self.option_selector > 0:
@@ -158,21 +164,44 @@ class Options(Entity):
                 self.selector.position = (self.option_punkts_list[self.option_selector].x - 0.05,
                                           self.option_punkts_list[self.option_selector].y)
 
-        if self.enabled and (key == "enter") or key == "d" or key == "a" or key == "right arrow" or key == "left arrow":
+        # ------------ Values ---------------
+
+        if self.enabled and key == "d" or key == "right arrow":
             self.click_sound.play()
             if self.option_selector == 0:
-                self.fps_show_mode = not self.fps_show_mode
-                self.fps_text.setText("[{0}]".format("yes" if self.fps_show_mode else "no"))
-            elif self.option_selector == 1:
+                if self.value_selector < 2:
+                    self.value_selector += 1
+                else:
+                    self.value_selector = 0
+                self.sens = setting.mouse_sensitivity[self.value_selector]
+                self.lang_text.setText("[{0}]".format(self.sens))
+
+        if self.enabled and key == "a" or key == "left arrow":
+            self.click_sound.play()
+            if self.option_selector == 0:
+                if self.value_selector > 0:
+                    self.value_selector -= 1
+                else:
+                    self.value_selector = 2
+                self.sens = setting.mouse_sensitivity[self.value_selector]
+                self.lang_text.setText("[{0}]".format(self.sens))
+
+        if self.enabled and key == "enter" or key == "d" or key == "a" or key == "right arrow" or key == "left arrow":
+            self.click_sound.play()
+            if self.option_selector == 1:
                 self.fps_show_mode = not self.fps_show_mode
                 self.fps_text.setText("[{0}]".format("yes" if self.fps_show_mode else "no"))
             elif self.option_selector == 2:
-                self.autodotect_size = not self.autodotect_size
-                self.auto_text.setText("[{0}]".format("yes" if self.autodotect_size else "no"))
+                self.fullscreen = not self.fullscreen
+                self.auto_text.setText("[{0}]".format("yes" if self.fullscreen else "no"))
+
+            # ------------ Apply ---------------
 
             if self.option_selector == len(self.option_punkts_list) - 1:
-                # my_json.change_key ("assets/options", "show_fps", self.fps_show_mode)
-                # my_json.change_key ("assets/options", "autodetect", self.autodotect_size)
+                my_json.change_key("assets/options", "mouse_sensitivity", self.sens)
+                my_json.change_key("assets/options", "show_fps", self.fps_show_mode)
+                my_json.change_key("assets/options", "fullscreen", self.fullscreen)
+
                 scene.main_menu.enable()
                 self.option_selector = 0
                 self.options_menu.disable()

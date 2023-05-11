@@ -16,3 +16,4 @@ developer_mode = True
 show_raycast_debug = True
 color_orange = color.rgb(238, 157, 49)
 game_font = "assets/fonts/fix.ttf"
+mouse_sensitivity = [40,30,20]

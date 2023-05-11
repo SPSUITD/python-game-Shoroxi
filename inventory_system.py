@@ -21,7 +21,6 @@ class Inventory(Entity):
         self.items_in_inventory = []
         self.stack_items = True
 
-        # >> Add items from player.json file
         for item in player_creature["start_items"]:
             self.add_item(item)
 

@@ -1,13 +1,12 @@
 {
-    "autodetect": false,
     "aspect": [
         16,
         9
     ],
     "camera_fov": 80,
-    "first_launch": true,
-    "mouse_sensitivity": 40,
-    "show_fps": true,
+    "fullscreen": false,
+    "mouse_sensitivity": 30,
+    "show_fps": false,
     "window_size": [
         720,
         480

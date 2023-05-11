@@ -29,27 +29,23 @@ if __name__ == "__main__":
 
     app = Ursina()
 
-    if options["autodetect"]:
-        window.fullscreen = True
-    else:
-        window.fullscreen = False
-
     window.cog_button = False
-
-
     scene = None
-    # window.icon = "Icon.ico"
-    window.title = setting.title
+
+    window.fullscreen = options["fullscreen"]
     window.fps_counter.enabled = options["show_fps"]
     window.fps_counter.position = (100, 100)
-    window.exit_button.visible = setting.window_show_quit_button
 
-    window.color = color.black
+    window.title = setting.title
     mouse.enabled = setting.cursor
     Text.default_font = setting.game_font
-    text.default_resolution = 720 * Text.size
+    window.exit_button.visible = setting.window_show_quit_button
 
+    # window.icon = "Icon.ico"
+    window.color = color.black
+    text.default_resolution = 720 * Text.size
     application.development_mode = False
+
     # Filters
     Texture.default_filtering = False
     filters = CommonFilters(app.win, app.cam)
