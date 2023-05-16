@@ -3,11 +3,11 @@
     "name": "itm.light.name",
     "caption": "Light"
   },
-  "trash_1": {
+  "pistol": {
     "name": "itm.trash_1.name",
     "caption": "Trash"
   },
-    "trash_2": {
+    "tovar": {
     "name": "itm.trash_2.name",
     "caption": "Trash"
   },
@@ -23,7 +23,7 @@
     "name": "itm.fuel.name",
     "caption": "Fuel"
   },
-    "all_trash": {
+    "trash_out": {
     "name": "itm.all_trash.name",
     "caption": "All trash"
   }
