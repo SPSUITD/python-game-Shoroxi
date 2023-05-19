@@ -9,28 +9,29 @@
     },    {
       "id": "cass",
       "model": "sphere",
-      "position": [-120.901, -35, 296.37],
+      "position": [-120.901, -35, 296],
       "radius": 45
     },   {
       "id": "door_enter",
       "model": "sphere",
-      "position": [-41.5856, -35, 130.608],
-      "radius": 25
-    },    {
-      "id": "phone",
-      "model": "sphere",
-      "position": [89.5055, -35, 159.234],
-      "radius": 25
-    },    {
+      "position": [-41.5856, -35, 130],
+      "radius": 20
+    }, {
       "id": "trash",
       "model": "sphere",
-      "position": [115.67, -35, 251.206],
-      "radius": 70
+      "position": [115.67, -35, 251],
+      "radius": 40
     }, {
       "id": "stash",
       "model": "sphere",
-      "position": [115.67, -35, 251.206],
-      "radius": 70
+      "position": [34, -38, 223],
+      "radius": 7
+    },
+    {
+      "id": "tv",
+      "model": "sphere",
+      "position": [-108.67, -38, 220],
+      "radius": 15
     }
   ],
   "sound": [
@@ -110,20 +111,28 @@
     }
   ],
   "models": [
-        {
-      "name": "sky",
-      "model": "assets/levels/ai_test/sky",
+    {
+      "name": "forest",
+      "model": "assets/levels/ai_test/models/forest",
       "texture": "None",
-      "position": [0, 0, 0]
+      "position": [0, -40, 0],
+       "scale": 0.5
+    },
+    {
+      "name": "sky",
+      "model": "assets/levels/ai_test/models/sky",
+      "texture": "None",
+      "position": [0, -40, 0],
+       "scale": 0.5
     },
     {
       "id": "spawn_point",
       "model": "sphere",
-      "position": [0, 20, 0]
+      "position": [0, 30, 0]
     },
     {
       "name": "ground",
-      "model": "assets/levels/ai_test/gz_ground",
+      "model": "assets/levels/ai_test/models/gz_ground",
       "position": [0, -40, 0],
       "shader": true,
       "collider": "mesh",
@@ -131,15 +140,23 @@
     },
     {
       "name": "gas_station_collider",
-      "model": "assets/levels/ai_test/collider",
+      "model": "assets/levels/ai_test/models/collider",
       "position": [0, -40, 0],
       "collider": "mesh",
       "scale": 0.5,
       "color": [0, 0, 0, 0]
     },
     {
+      "name": "glass",
+      "model": "assets/levels/ai_test/models/glass",
+      "position": [0, -40, 0],
+      "shader": true,
+      "collider": null,
+      "color":[100,100,140,180],
+      "scale": 0.5
+    }, {
       "name": "gas_station",
-      "model": "assets/levels/ai_test/gas_station",
+      "model": "assets/levels/ai_test/models/gas_station",
       "position": [0, -40, 0],
       "shader": true,
       "collider": null,
@@ -148,6 +165,7 @@
       "id": "loot",
       "loot_name": "light",
       "model": "assets/levels/ai_test/loot/light",
+      "position": [0, -40, 0],
       "collider": "box",
       "scale": 0.5
     },{
@@ -177,6 +195,7 @@
       "model": "assets/levels/ai_test/loot/trash_floor_1",
       "position": [0, -40, 0],
       "collider": "box",
+      "color":[111,50,111,255],
       "scale": 0.5
     }, {
       "id": "loot",

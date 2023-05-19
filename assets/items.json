@@ -4,24 +4,24 @@
     "caption": "Light"
   },
   "pistol": {
-    "name": "itm.trash_1.name",
+    "name": "itm.pistol.name",
     "caption": "Trash"
   },
     "tovar": {
-    "name": "itm.trash_2.name",
+    "name": "itm.tovar.name",
     "caption": "Trash"
   },
-    "trash_3": {
-    "name": "itm.trash_3.name",
+    "trash_1": {
+    "name": "itm.trash_1.name",
+    "caption": "Trash"
+  },
+    "tv": {
+    "name": "itm.tv.name",
     "caption": "Trash"
   },
     "dirt_1": {
     "name": "itm.dirt_1.name",
     "caption": "Dirt on window"
-  },
-    "fuel": {
-    "name": "itm.fuel.name",
-    "caption": "Fuel"
   },
     "trash_out": {
     "name": "itm.all_trash.name",

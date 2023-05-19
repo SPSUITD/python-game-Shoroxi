@@ -25,6 +25,10 @@ gameplay = True
 game_session = None
 pause = True
 
+hiss = Audio(sound_folder + "spider_hiss", volume=5, autoplay=False, loop=False)
+actor = Actor(anim_folder + "goblin.gltf")
+actor.reparent_to(Entity(position=(0, -40, 90), rotation=Vec3(0,180,0), scale=14))
+
 def get_player():
     if game_session:
         if game_session.player is not None:
@@ -56,10 +60,10 @@ def set_current_level(lvl):
     if game_session:
         game_session.current_level = Level(get_player(), level_id=lvl)
 
-def show_message(txt, life_time=5):
-    get_player().msg.setText("")
-    get_player().msg.setText(txt)
-    invoke(get_player().msg.setText, "", delay=life_time)
+# def show_message(txt, life_time=5):
+#     get_player().msg.setText("")
+#     get_player().msg.setText(txt)
+#     invoke(get_player().msg.setText, "", delay=life_time)
 
 def set_player_to_level_spawn_point():
     get_player().position = get_current_level().spawn_point["position"]
@@ -84,11 +88,11 @@ class Player(Entity):
         camera.clip_plane_far = 500
         self.direction = Vec3(camera.forward)
         # ------------ Camera 2 ---------------
-        self.camHolder = Entity(position=camera.position)
-        self.camStartPos = camera.position
-        self.amplitude = .0058
-        self.frequency = 10
-        self.timer = 0
+        # self.camHolder = Entity(position=camera.position)
+        # self.camStartPos = camera.position
+        # self.amplitude = .0058
+        # self.frequency = 10
+        # self.timer = 0
         # ------------ Player ---------------
         self.speed = 40
         self.height = 165
@@ -241,7 +245,7 @@ class Player(Entity):
 
             def setCrosshairTip(tip_text):
                 self.crosshair_tip_text = tip_text
-                self.press_e.enabled = True
+                # self.press_e.enabled = True
 
             def clearCrosshairText():
                 self.crosshair_tip_text = ""
@@ -279,12 +283,7 @@ class Player(Entity):
                     #     setCrosshairTip("Открыть дверь")
                     # if getHitData().id == "trash_out":
                     #     setCrosshairTip("Выкинуть")
-                    # if getHitData().id == "trash_floor_1" or "trash_floor_2" or "trash_floor_3":
-                    #     setCrosshairTip("Собрать")
-                    # if getHitData().id == "vent":
-                    #     setCrosshairTip("Вентилятор")
-                    # if getHitData().id == "phone":
-                    #     setCrosshairTip("Телефон")
+
                     if getHitData().id == "" or getHitData().id is None:
                         clearCrosshairText()
                 else:
@@ -293,12 +292,6 @@ class Player(Entity):
                 clearCrosshairText()
             # ---------------------------
             if self.mouse_control:
-
-                if self.inventory.has_item("light"):
-                    invoke(show_message, "Соберите весь мусор", 5, delay=0.001)
-                if self.inventory.has_item("tv"):
-                    invoke(show_message, "Проверьте товар на полках", 5, delay=0.001)
-
 
                 # Interact
                 self.direction = Vec3(camera.forward)
@@ -359,7 +352,7 @@ class Trigger(Entity):
         self._i = 0
         self._counter = 0
 
-        self.actor = Anims(anims_id="low")
+        # self.actor = Anims(anims_id="low")
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -383,6 +376,63 @@ class Trigger(Entity):
             return
         self._i = 0
 
+        if get_current_status() == "door_enter":
+            # TODO FIX DEL OBJ
+            for obj in get_current_level().level_objects:
+                if obj.type == "PointLight":
+                    get_current_level().level_objects[self._counter].enable()
+                self._counter += 1
+            self._counter = 0
+
+            if self.check_itm("pistol"):
+                # finish
+                pass
+            else:
+                # dead
+                pass
+
+            if not self.check_itm("light"):
+                get_player().msg.setText("Включите свет")
+
+        if get_current_status() == "cass":
+            if self.check_itm("light"):
+                get_player().msg.setText("Соберите и выбросите мусор")
+
+            if self.check_itm("pistol"):
+                get_player().msg.setText("Проверьте кто это был")
+
+        if get_current_status() == "trash":
+            if self.check_itm("trash_1") and self.check_itm("trash_out"):
+                get_player().msg.setText("Включите телевизор")
+
+        if get_current_status() == "tv":
+            if self.check_itm("trash_1") and self.check_itm("trash_out"):
+                if self.check_itm("tv"):
+                    # врубить тв
+                    get_player().msg.setText("проверьте товар")
+
+        if get_current_status() == "stash":
+            if self.check_itm("trash_out") and self.check_itm("tv"):
+                if self.check_itm("tovar"):
+                    # отрубить звук тв
+                    get_player().msg.setText("Проверьте окно")
+                    # пугающий звук у окна, упавший товар
+                    hiss.play()
+                    # закрыть выход
+                    Entity()
+
+        if get_current_status() == "window":
+            # if self.check_itm("tovar"):
+
+                actor.loop("jump")
+                get_player().msg.setText("Представьте что вы взяли пистолет из под прилавка")
+
+        if get_current_status() == "cass":
+            if self.check_itm("tovar"):
+                self.add_itm("pistol")
+            if self.check_itm("pistol"):
+                get_player().msg.setText("Проверьте кто это был")
+
         for other in self.trigger_targets:
             if other == self:
                 continue
@@ -397,68 +447,8 @@ class Trigger(Entity):
                 self.triggerers.append(other)
                 set_current_status(self.get_trigger_id())
 
-                if get_current_status() == "door_enter":
-                    for obj in get_current_level().level_objects:
-                        if obj.type == "PointLight":
-                            get_current_level().level_objects[self._counter].enable()
-                        self._counter += 1
-                    self._counter = 0
-
-                    if self.check_itm("pistol"):
-                        # finish
-                        pass
-                    else:
-                        # dead
-                        pass
-
-                    if not self.check_itm("light"):
-                        invoke(show_message, "Включите свет", 5, delay=0.001)
-
-                if get_current_status() == "cass":
-
-                    if self.check_itm("light"):
-
-                        invoke(show_message, "Соберите и выбросите мусор", 5, delay=7)
-
-                    if self.check_itm("pistol"):
-                        invoke(show_message, "Проверьте кто это был", 5, delay=7)
-
-                if get_current_status() == "trash_out":
-                    if self.check_itm("trash") and self.check_itm("all_trash"):
-                        invoke(show_message, "Включите телевизор", 5, delay=0.001)
-                if get_current_status() == "tv":
-                    if self.check_itm("trash") and self.check_itm("all_trash"):
-                        if self.check_itm("tv"):
-                            # врубить тв
-                            invoke(show_message, "проверьте товар", 5, delay=0.001)
-
-                if get_current_status() == "stash":
-                    if self.check_itm("trash_out") and self.check_itm("tv"):
-                        if self.check_itm("tovar"):
-                            # отрубить звук тв
-                            invoke(show_message, "Проверьте окно", 5, delay=0.001)
-                            # пугающий звук у окна, упавший товар
-                            Audio(sound_folder + "spider_hiss", volume=5, autoplay=False, loop=False).play()
-                            # закрыть выход
-                            Entity()
-
-                if get_current_status() == "window":
-                    if self.check_itm("tovar"):
-                        actor = Actor(anim_folder+"goblin.gltf")
-                        actor.reparent_to(Entity(position=(0,0,0), scale=16))
-                        actor.play("jump")
-
-                        invoke(show_message, "Представьте что вы взяли пистолет из под прилавка", 5, delay=7)
-
-                if get_current_status() == "cass":
-                    if self.check_itm("tovar"):
-                        self.add_itm("pistol")
-                    if self.check_itm("pistol"):
-                        invoke(show_message, "Проверьте кто это был", 5, delay=7)
 
 
-                if hasattr(self, 'on_trigger_enter'):
-                    self.on_trigger_enter()
                 continue
 
             # Вышел
@@ -473,7 +463,7 @@ class Trigger(Entity):
             if other in self.triggerers and hasattr(self, 'on_trigger_stay'):
                 self.on_trigger_stay()
 
-# TODO audio
+# TODO audio change volume by distance
 class Audio3d(Audio):
     def __init__(self, sound_file_name, max_distance=10, **kwargs):
         super().__init__(sound_file_name, autoplay=False, **kwargs)
@@ -526,7 +516,8 @@ class Gameplay(Entity):
         set_player_to_level_spawn_point()
 
         gameplay = True
-        invoke(show_message, "Зайдите в свой магазин", 5, delay=0.001)
+        self.player.msg.setText("Зайдите в свой магазин")
+
         Audio(sound_folder+"amb", volume=0.1, autoplay=False, loop=True).play()
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -643,6 +634,7 @@ class Level(Entity):
                 lvl_obj.keys = obj
                 # lvl_obj.setShaderAuto()
                 self.level_objects.append(lvl_obj)
+
 
 class LevelObject(Entity):
     def __init__(self, **kwargs):
