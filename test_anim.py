@@ -1,14 +1,11 @@
 from ursina import *
-from direct.actor.Actor import Actor
 
 app = Ursina()
-anim_folder = "assets/animations/low.gltf"
 
-entity = Entity()
-actor = Actor(anim_folder)
-actor.reparent_to(entity)
-actor.loop("MXManim")
-
-
+video = 'video.mp4'
+video_player = Entity(model='quad', parent=camera.ui, scale=(1.5, 1), texture=video)
+video_sound = loader.loadSfx(video)
+video_player.texture.synchronizeTo(video_sound)
+video_sound.play()
 
 app.run()

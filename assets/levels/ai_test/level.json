@@ -26,11 +26,15 @@
       "model": "sphere",
       "position": [34, -38, 223],
       "radius": 7
-    },
-    {
+    }, {
       "id": "tv",
       "model": "sphere",
       "position": [-108.67, -38, 220],
+      "radius": 15
+    }, {
+      "id": "enemy",
+      "parent": "actor",
+      "model": "sphere",
       "radius": 15
     }
   ],
@@ -63,7 +67,7 @@
       "rotation": [0, 90, 0],
       "distance": 0.05,
       "shadows": false,
-      "color": [70, 55, 55]
+      "color": [50, 50, 50]
     },
     {
       "type": "point",
@@ -72,7 +76,7 @@
       "rotation": [0, 90, 0],
       "distance": 0.05,
       "shadows": false,
-      "color": [70, 55, 55]
+      "color": [0, 0, 0]
     },
     {
       "type": "point",
@@ -81,7 +85,7 @@
       "rotation": [0, 90, 0],
       "distance": 0.05,
       "shadows": true,
-      "color": [70, 55, 55]
+      "color": [0, 0, 0]
     },
     {
       "type": "point",
@@ -90,7 +94,7 @@
       "rotation": [0, 90, 0],
       "distance": 0.05,
       "shadows": false,
-      "color": [70, 55, 55]
+      "color": [0, 0, 0]
     },    {
       "type": "point",
       "parent": "self",
@@ -98,7 +102,7 @@
       "rotation": [0, 90, 0],
       "distance": 0.05,
       "shadows": false,
-      "color": [70, 55, 55]
+      "color": [0, 0, 0]
     },
    {
       "type": "point",
@@ -107,31 +111,34 @@
       "rotation": [0, 90, 0],
       "distance": 0.03,
       "shadows": false,
-      "color": [70, 55, 55]
+      "color": [0, 0, 0]
     }
   ],
   "models": [
     {
-      "name": "forest",
+      "type": "model",
+      "id": "forest",
       "model": "assets/levels/ai_test/models/forest",
       "texture": "None",
       "position": [0, -40, 0],
        "scale": 0.5
     },
     {
-      "name": "sky",
+      "type": "model",
+      "id": "sky",
       "model": "assets/levels/ai_test/models/sky",
       "texture": "None",
       "position": [0, -40, 0],
        "scale": 0.5
     },
     {
-      "id": "spawn_point",
+      "type": "spawn_point",
       "model": "sphere",
       "position": [0, 30, 0]
     },
     {
-      "name": "ground",
+      "type": "model",
+      "id": "ground",
       "model": "assets/levels/ai_test/models/gz_ground",
       "position": [0, -40, 0],
       "shader": true,
@@ -139,67 +146,71 @@
       "scale": 0.5
     },
     {
-      "name": "gas_station_collider",
+      "type": "collider",
+      "id": "",
       "model": "assets/levels/ai_test/models/collider",
       "position": [0, -40, 0],
       "collider": "mesh",
-      "scale": 0.5,
-      "color": [0, 0, 0, 0]
+      "scale": 0.5
     },
     {
-      "name": "glass",
+      "type": "model",
+      "id": "glass",
       "model": "assets/levels/ai_test/models/glass",
       "position": [0, -40, 0],
       "shader": true,
       "collider": null,
       "color":[100,100,140,180],
       "scale": 0.5
-    }, {
-      "name": "gas_station",
+    },
+    {
+      "type": "model",
+      "id": "gas_station",
       "model": "assets/levels/ai_test/models/gas_station",
       "position": [0, -40, 0],
       "shader": true,
       "collider": null,
       "scale": 0.5
-    }, {
-      "id": "loot",
-      "loot_name": "light",
+    },
+    {
+      "type": "loot",
+      "id": "light",
       "model": "assets/levels/ai_test/loot/light",
       "position": [0, -40, 0],
       "collider": "box",
       "scale": 0.5
     },{
-      "id": "loot",
-      "loot_name": "pistol",
+      "type": "loot",
+      "id": "pistol",
       "model": "assets/levels/ai_test/loot/pistol",
       "position": [0, -40, 0],
       "collider": "box",
       "scale": 0.5
     },{
-      "id": "loot",
-      "loot_name": "tv",
+      "type": "loot",
+      "id": "tv",
       "model": "assets/levels/ai_test/loot/tv",
       "position": [0, -40, 0],
       "collider": "box",
       "scale": 0.5
     },{
-      "id": "loot",
-      "loot_name": "tovar",
+      "type": "loot",
+      "id": "tovar",
       "model": "assets/levels/ai_test/loot/tovar",
       "position": [0, -40, 0],
       "collider": "box",
       "scale": 0.5
     }, {
-      "id": "loot",
-      "loot_name": "trash_1",
+      "type": "loot",
+      "id": "trash_1",
       "model": "assets/levels/ai_test/loot/trash_floor_1",
       "position": [0, -40, 0],
       "collider": "box",
       "color":[111,50,111,255],
       "scale": 0.5
     }, {
-      "id": "loot",
-      "loot_name": "trash_out",
+      "type": "loot",
+      "id": "trash_out",
       "model": "assets/levels/ai_test/loot/trash_out",
       "position": [0, -40, 0],
       "collider": "box",

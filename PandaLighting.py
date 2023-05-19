@@ -1,10 +1,5 @@
 from ursina import *
-from panda3d.core import PerspectiveLens
-
 from panda3d.core import PointLight as PandaPointLight
-from panda3d.core import Spotlight as PandaSpotLight
-
-from panda3d.core import LVector3
 
 class Light(Entity):
     def __init__(self, **kwargs):
@@ -28,6 +23,13 @@ class PointLight(Light):
         self._light.max_distance = distance
         self._light.setColor(color)
         render.setLight(self.attachNewNode(self._light))
+        self.light_id = None
 
         for key, value in kwargs.items():
             setattr(self, key,value)
+
+    def get_light_id(self):
+        return self.light_id
+
+    def color_set(self, color):
+        return self._light.setColor(color)

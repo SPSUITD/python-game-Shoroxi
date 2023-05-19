@@ -24,10 +24,34 @@ options_file = my_json.read("assets/options")
 gameplay = True
 game_session = None
 pause = True
+# menu = False
 
 hiss = Audio(sound_folder + "spider_hiss", volume=5, autoplay=False, loop=False)
+
+goblin = Entity(position=(0, -40, 90), rotation=Vec3(0,180,0), scale=14)
 actor = Actor(anim_folder + "goblin.gltf")
-actor.reparent_to(Entity(position=(0, -40, 90), rotation=Vec3(0,180,0), scale=14))
+actor.reparent_to(goblin)
+
+video = anim_folder + 'video.mp4'
+video_player = Entity(model='quad', parent=camera.ui, scale=(1.5, 1), texture=video)
+
+
+def check_itm(itm):
+    if game_session.player.inventory.has_item(itm):
+        return True
+    else:
+        pass
+        # уведомление
+
+def add_itm(itm):
+    game_session.player.inventory.add_item(itm)
+    if itm == "light":
+        for i in game_session.current_level.level_objects:
+            pprint.pprint(i.keys)
+            if i.type == "point":
+                i.color_set(Vec4(1, 1, 1, 1))
+    # уведомление
+
 
 def get_player():
     if game_session:
@@ -96,11 +120,11 @@ class Player(Entity):
         # ------------ Player ---------------
         self.speed = 40
         self.height = 165
-        self.gravity = 1
+        self.gravity = 7
         self.grounded = False
-        self.jump_height = 8
-        self.jump_up_duration = .5
-        self.fall_after = .2
+        self.jump_height = 14
+        self.jump_up_duration = .7
+        self.fall_after = .3
         self.jumping = False
         self.air_time = 0
         self.inventory = Inventory()
@@ -110,7 +134,7 @@ class Player(Entity):
         # ------------ Ui ---------------
         self.press_e = ui.UIText("press [E]", parent=camera.ui,offset=(0.0018,0.0018), y=-0.35, enabled=False, color=color.white,origin=(0,0))
         self.fps_counter = ui.UIText("", (0.0018, 0.0018), color=setting.color_orange, position=(window.right.x - 0.13, window.top.y - .1))
-        # self.cursor = Sprite(ui_folder + "crosshair.png", parent=camera.ui, scale=.005, color=self.hideHUD())
+        self.cursor = Sprite(texture="quad", parent=camera.ui, scale=.005, color=color.white)
         self.crosshair_tip_text = ""
         self.crosshair_tip = ui.UIText(parent=camera.ui, offset=(0.0015,0.0015), text=self.crosshair_tip_text, origin=(0, 0), y=0.04,
                                        color=color.white, scale=1, x=0, z=-0.001)
@@ -222,12 +246,12 @@ class Player(Entity):
                     return self.ray_hit.entity
 
                 if getHitData() and getHitData().id is not None:
-                    if getHitData().id == "loot":
+                    if getHitData().keys["type"] == "loot":
                         if keypress == "e" and game_session:
                             invoke(self.raycast_once, delay=.05)
                             # getHitData().animate_position(value=self.position, duration=1, curve=curve.linear)
-                            self.inventory.add_item(getHitData().keys["loot_name"])  # поднятие предмета
-                            # destroy(getHitData(), delay=1)
+                            add_itm(getHitData().id)  # поднятие предмета
+                            destroy(getHitData(), delay=1)
                             self.crosshair_tip_text = ""
 
             if keypress == "escape" and not self.dialogue.enabled:
@@ -256,33 +280,37 @@ class Player(Entity):
                     return self.ray_hit.entity
 
             if setting.developer_mode:
-                self.hit_text = getHitData() if getHitData() else "None"
-                self.debug_text.text = "POS X: " + str(round(self.x, 2)) + \
-                                       "\nPOS Y: " + str(round(self.y, 2)) + \
-                                       "\nPOS Z: " + str(round(self.z, 2)) + \
-                                       "\n\nROT X: " + str(round(self.camera_pivot.rotation.x, 2)) + \
-                                       "\nROT Y: " + str(round(self.rotation.y, 2)) + \
-                                       "\nROT Z: " + str(round(self.camera_pivot.rotation.z, 2)) + \
-                                       "\n\nVEL X: " + str(round(mouse.velocity[0], 2)) + \
-                                       "\nVEL Y: " + str(round(mouse.velocity[1], 2)) + \
-                                       "\n\nHIT: " + str(self.hit_text)
+                if getHitData():
+                    self.hit_text2 = getHitData().keys["type"] if getHitData().keys["type"] else "None"
+                    self.hit_text = getHitData().id if getHitData().id else "None"
+                    self.debug_text.text = "POS X: " + str(round(self.x, 2)) + \
+                                           "\nPOS Y: " + str(round(self.y, 2)) + \
+                                           "\nPOS Z: " + str(round(self.z, 2)) + \
+                                           "\n\nROT X: " + str(round(self.camera_pivot.rotation.x, 2)) + \
+                                           "\nROT Y: " + str(round(self.rotation.y, 2)) + \
+                                           "\nROT Z: " + str(round(self.camera_pivot.rotation.z, 2)) + \
+                                           "\n\nVEL X: " + str(round(mouse.velocity[0], 2)) + \
+                                           "\nVEL Y: " + str(round(mouse.velocity[1], 2)) + \
+                                           "\n\nHIT: " + str(self.hit_text) + \
+                                           "\n\nHIT: " + str(self.hit_text2)
 
             # РЭЙКАСТИНГ, ВЗАИМОДЕЙСТВИЕ С МИРОМ
             if self.ray_hit.hit:
-                if getHitData() is not None:
+                if getHitData().keys["type"] == "loot":
                     # TODO: name key for id items
-                    setCrosshairTip("Press E")
-
-                    # if getHitData().id == "fuel":
-                    #     setCrosshairTip("Проверить топливо")
-                    # if getHitData().id == "radio":
-                    #     setCrosshairTip("Радио")
-                    # if getHitData().id == "light":
-                    #     setCrosshairTip("Свет")
-                    # if getHitData().id == "black_door":
-                    #     setCrosshairTip("Открыть дверь")
-                    # if getHitData().id == "trash_out":
-                    #     setCrosshairTip("Выкинуть")
+                    self.set_crosshair()
+                    if getHitData().id == "tovar":
+                        setCrosshairTip("Проверить товар")
+                    if getHitData().id == "pistol":
+                        setCrosshairTip("Пистолет")
+                    if getHitData().id == "light":
+                        setCrosshairTip("Включить")
+                    if getHitData().id == "tv":
+                        setCrosshairTip("Включить")
+                    if getHitData().id == "trash_out":
+                        setCrosshairTip("Выкинуть")
+                    if getHitData().id == "trash_1":
+                        setCrosshairTip("Прибрать")
 
                     if getHitData().id == "" or getHitData().id is None:
                         clearCrosshairText()
@@ -346,6 +374,7 @@ class Trigger(Entity):
         self.radius = None
         self.scale = self.radius
         self.color = color.rgba(10,10,10,50)
+        self.parent = None
 
         self.triggerers = []
         self.update_rate = 10
@@ -359,79 +388,17 @@ class Trigger(Entity):
     def get_trigger_id(self):
         return self.trigger_id
 
-    def check_itm(self, itm):
-        if get_player().inventory.has_item(itm):
-            return True
-        else:
-            pass
-            # уведомление
-
-    def add_itm(self, itm):
-        get_player().inventory.add_item(itm)
-        # уведомление
-
     def update(self):
+        global pause
+        # print(goblin.position)
         self._i += 1
         if self._i < self.update_rate:
             return
         self._i = 0
 
-        if get_current_status() == "door_enter":
-            # TODO FIX DEL OBJ
-            for obj in get_current_level().level_objects:
-                if obj.type == "PointLight":
-                    get_current_level().level_objects[self._counter].enable()
-                self._counter += 1
-            self._counter = 0
-
-            if self.check_itm("pistol"):
-                # finish
-                pass
-            else:
-                # dead
-                pass
-
-            if not self.check_itm("light"):
-                get_player().msg.setText("Включите свет")
-
-        if get_current_status() == "cass":
-            if self.check_itm("light"):
-                get_player().msg.setText("Соберите и выбросите мусор")
-
-            if self.check_itm("pistol"):
-                get_player().msg.setText("Проверьте кто это был")
-
-        if get_current_status() == "trash":
-            if self.check_itm("trash_1") and self.check_itm("trash_out"):
-                get_player().msg.setText("Включите телевизор")
-
-        if get_current_status() == "tv":
-            if self.check_itm("trash_1") and self.check_itm("trash_out"):
-                if self.check_itm("tv"):
-                    # врубить тв
-                    get_player().msg.setText("проверьте товар")
-
-        if get_current_status() == "stash":
-            if self.check_itm("trash_out") and self.check_itm("tv"):
-                if self.check_itm("tovar"):
-                    # отрубить звук тв
-                    get_player().msg.setText("Проверьте окно")
-                    # пугающий звук у окна, упавший товар
-                    hiss.play()
-                    # закрыть выход
-                    Entity()
-
-        if get_current_status() == "window":
-            # if self.check_itm("tovar"):
-
-                actor.loop("jump")
-                get_player().msg.setText("Представьте что вы взяли пистолет из под прилавка")
-
-        if get_current_status() == "cass":
-            if self.check_itm("tovar"):
-                self.add_itm("pistol")
-            if self.check_itm("pistol"):
-                get_player().msg.setText("Проверьте кто это был")
+        if get_current_status() == "enemy":
+            # pause = True
+            print("Вошел в триггер: " + self.get_trigger_id())
 
         for other in self.trigger_targets:
             if other == self:
@@ -441,13 +408,63 @@ class Trigger(Entity):
             # Вошел
             if other not in self.triggerers and dist <= self.radius:
                 print("Вошел в триггер: " + self.get_trigger_id())
-                # print(repr(self))
-                # if self.get_trigger_id() == "test":
-                #     self.actor.play_anim("MXManim")
+
                 self.triggerers.append(other)
                 set_current_status(self.get_trigger_id())
 
+                if get_current_status() == "door_enter":
+                    add_itm("light")
+                    if check_itm("pistol"):
+                        # pre-render anim
+                        video_sound.play()
+                        # finish
+                        pass
+                    else:
+                        # dead
+                        # menu
+                        pass
 
+                    if not check_itm("light"):
+                        get_player().msg.setText("Включите свет")
+                #
+                # if get_current_status() == "cass":
+                #     if check_itm("light"):
+                #         get_player().msg.setText("Соберите и выбросите мусор")
+                #
+                #     if check_itm("pistol"):
+                #         get_player().msg.setText("Проверьте кто это был")
+                #
+                # if get_current_status() == "trash":
+                #     if check_itm("trash_1") and self.check_itm("trash_out"):
+                #         get_player().msg.setText("Включите телевизор")
+                #
+                # if get_current_status() == "tv":
+                #     if check_itm("trash_1") and check_itm("trash_out"):
+                #         if check_itm("tv"):
+                #             # врубить тв
+                #             get_player().msg.setText("проверьте товар")
+                #
+                # if get_current_status() == "stash":
+                #     if check_itm("trash_out") and check_itm("tv"):
+                #         if check_itm("tovar"):
+                #             # отрубить звук тв
+                #             get_player().msg.setText("Проверьте окно")
+                #             # пугающий звук у окна, упавший товар
+                #             hiss.play()
+                #             # закрыть выход
+                #             Entity()
+
+                if get_current_status() == "window":
+                    # if self.check_itm("tovar"):
+
+                    actor.loop("jump")
+                    get_player().msg.setText("Представьте что вы взяли пистолет из под прилавка")
+
+                # if get_current_status() == "cass":
+                #     if check_itm("tovar"):
+                #         add_itm("pistol")
+                #     if check_itm("pistol"):
+                #         get_player().msg.setText("Проверьте кто это был")
 
                 continue
 
@@ -512,11 +529,18 @@ class Gameplay(Entity):
         # передаём ссылку с созданным гг в уровень для дальнейшего доступа к классу гг
         invoke(self.player.load_location, player_creature["start_level"] if level is None else level,delay=0.00001)
         self.current_level = Level(self.player, level_id=player_creature["start_level"] if level is None else level)
-        pprint.pprint(self.current_level.level_objects)
+
+        for i in game_session.current_level.level_objects:
+            pprint.pprint(i)
+
         set_player_to_level_spawn_point()
 
         gameplay = True
         self.player.msg.setText("Зайдите в свой магазин")
+
+
+        # video_sound = ursina.loader.loadSfx(video)
+        # video_player.texture.synchronizeTo(video_sound)
 
         Audio(sound_folder+"amb", volume=0.1, autoplay=False, loop=True).play()
         for key, value in kwargs.items():
@@ -539,6 +563,50 @@ class Level(Entity):
         if os.path.isdir("assets/levels/" + str(self.level_id)):
             level_data = my_json.read("assets/levels/" + str(self.level_id) + "/level")
 
+            # Создаём объекты из папки с уровнем из файла level
+            for obj in level_data["models"]:
+
+                lvl_obj = LevelObject(parent=self,
+                                      model=obj["model"] if "model" in obj else None,
+                                      position=obj["position"] if "position" in obj else (0, 0, 0),
+                                      scale=obj["scale"] if "scale" in obj else 1,
+                                      collider=obj["collider"] if "collider" in obj else None,
+                                      texture=obj["texture"] if "texture" in obj else None,
+                                      type=obj["type"] if "type" in obj else None,
+                                      color=color.rgba(obj["color"][0], obj["color"][1], obj["color"][2], obj["color"][3])
+                                      if "color" in obj else color.clear
+                                      if obj["type"] in obj and obj["type"] == "collider" or obj["type"] == "loot" or obj["type"] == "trigger" else color.clear
+                                      if obj["type"] in obj and obj["type"] == "loot" else color.white,
+                                      id=obj["id"] if "id" in obj else None)
+
+                # звук от предмета
+                # if "sound" in obj and obj["sound"]:
+                #     a = Audio3d()
+                #     attach_to(lvl_obj)
+                #
+                # if "animation" in obj and obj["animation"]:
+                #     a = Anim()
+                #     attach_to(lvl_obj)
+
+                if "type" in obj:
+                    if obj["type"] == "spawn_point":
+                        get_player().position = obj["position"]
+                        self.spawn_point = obj
+
+                if "shader" in obj:
+                    # lvl_obj.shader = lit_with_shadows_shader
+                    lvl_obj.setShaderAuto()
+
+                scene.fog_density = 0.010
+                scene.fog_color = color.rgb(level_data["weather_color"][0], level_data["weather_color"][1], level_data["weather_color"][2])
+
+                # sunsetSky = load_texture(tex_folder+'sunset.jpg')
+                # Sky(texture=sunsetSky)
+
+                lvl_obj.keys = obj
+                # lvl_obj.setShaderAuto()
+                self.level_objects.append(lvl_obj)
+
             for sounds in level_data["sound"]:
                 if sounds["type"] == "amb":
                     ambient = (sound_folder + "amb.opus")
@@ -554,12 +622,15 @@ class Level(Entity):
                     pass
 
             for trigger in level_data["trigger"]:
-                t = Trigger(parent=self, trigger_targets=(self.player_data,), model=trigger["model"],
-                            position=trigger["position"],
+                t = Trigger(parent=trigger["parent"] if "parent" in trigger else self,
+                            trigger_targets=(self.player_data,),
+                            model=trigger["model"],
+                            position=trigger["position"] if "position" in trigger else [0,0,0],
                             color=color.rgba(10, 10, 10, 70),
                             radius=trigger["radius"],
                             scale=trigger["radius"],
-                            trigger_id=trigger["id"])
+                            trigger_id=trigger["id"],
+                            id=trigger["id"] if "id" in trigger else None)
                 t.keys = trigger
                 self.level_objects.append(t)
 
@@ -570,9 +641,11 @@ class Level(Entity):
                                    position=light["position"],
                                    rotation=light["rotation"],
                                    distance=light["distance"])
-                    l.disable()
                     l.keys = light
+
+
                     self.level_objects.append(l)
+                    # l.disable()
                 elif light["type"] == "direction":
                     l = ulight.DirectionalLight(parent=self, rotation=light["rotation"],
                                                 color=color.rgba(light["color"][0], light["color"][1],
@@ -593,54 +666,13 @@ class Level(Entity):
                     l.keys = light
                     self.level_objects.append(l)
 
-            # Создаём объекты из папки с уровнем из файла level
-            for obj in level_data["models"]:
-
-                lvl_obj = LevelObject(parent=self,
-                                      model=obj["model"] if "model" in obj else None,
-                                      position=obj["position"] if "position" in obj else (0, 0, 0),
-                                      scale=obj["scale"] if "scale" in obj else 1,
-                                      collider=obj["collider"] if "collider" in obj else None,
-                                      texture=obj["texture"] if "texture" in obj else None,
-                                      color=color.rgba(obj["color"][0], obj["color"][1], obj["color"][2], obj["color"][3])
-                                      if "color" in obj else color.clear
-                                      if "id" in obj else color.white,
-                                      id=obj["id"] if "id" in obj else None)
-
-                # звук от предмета
-                # if "sound" in obj and obj["sound"]:
-                #     a = Audio3d()
-                #     attach_to(lvl_obj)
-                #
-                # if "animation" in obj and obj["animation"]:
-                #     a = Anim()
-                #     attach_to(lvl_obj)
-
-                if "id" in obj:
-                    if obj["id"] == "spawn_point":
-                        get_player().position = obj["position"]
-                        self.spawn_point = obj
-
-                if "shader" in obj:
-                    # lvl_obj.shader = lit_with_shadows_shader
-                    lvl_obj.setShaderAuto()
-
-                scene.fog_density = 0.010
-                scene.fog_color = color.rgb(level_data["weather_color"][0], level_data["weather_color"][1], level_data["weather_color"][2])
-
-                # sunsetSky = load_texture(tex_folder+'sunset.jpg')
-                # Sky(texture=sunsetSky)
-
-                lvl_obj.keys = obj
-                # lvl_obj.setShaderAuto()
-                self.level_objects.append(lvl_obj)
-
 
 class LevelObject(Entity):
     def __init__(self, **kwargs):
         super().__init__()
         # ключ идентификатор
-        self.id = None
+        #self.id = None
+        #self.name = None
         # словарь ключей из файла с уровнем "ключ": значение
         self.keys = {}
 
