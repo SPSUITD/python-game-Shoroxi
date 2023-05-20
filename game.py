@@ -29,6 +29,7 @@ pause = True
 hiss = Audio(sound_folder + "spider_hiss", volume=5, autoplay=False, loop=False)
 
 goblin = Entity(position=(0, -40, 90), rotation=Vec3(0,180,0), scale=14)
+goblin.animate_position()
 actor = Actor(anim_folder + "goblin.gltf")
 actor.reparent_to(goblin)
 
@@ -41,17 +42,12 @@ def check_itm(itm):
         return True
     else:
         pass
-        # уведомление
 
 def add_itm(itm):
     game_session.player.inventory.add_item(itm)
-    if itm == "light":
-        for i in game_session.current_level.level_objects:
-            pprint.pprint(i.keys)
-            if i.type == "point":
-                i.color_set(Vec4(1, 1, 1, 1))
-    # уведомление
 
+def del_item(item_id):
+    game_session.player.inventory.del_item(item_id)
 
 def get_player():
     if game_session:
@@ -173,7 +169,7 @@ class Player(Entity):
         # TODO ADD fade
 
     def raycast_once(self):
-        self.ray_hit = raycast(self.position + (0, 20, 0), self.direction, ignore=(self,), distance=100)
+        self.ray_hit = raycast(self.position + (0, 20, 0), self.direction, ignore=(self,), distance=100, debug=False)
 
     def set_player_pos(self,x,y,z):
         self.position = (x,y,z)
@@ -248,10 +244,22 @@ class Player(Entity):
                 if getHitData() and getHitData().id is not None:
                     if getHitData().keys["type"] == "loot":
                         if keypress == "e" and game_session:
-                            invoke(self.raycast_once, delay=.05)
+                            invoke(self.raycast_once, delay=.01)
                             # getHitData().animate_position(value=self.position, duration=1, curve=curve.linear)
-                            add_itm(getHitData().id)  # поднятие предмета
-                            destroy(getHitData(), delay=1)
+                            if getHitData().id == "light":
+                                if not check_itm("light"):
+                                    light_off = False
+                                    add_itm("light")
+                                elif check_itm("light"):
+                                    light_off = True
+                                    del_item("light")
+                                for i in game_session.current_level.level_objects:
+                                    if i.name == "point_light":
+                                        i.color_off(light_off)
+                            else:
+                                add_itm(getHitData().id)
+                                destroy(getHitData())
+
                             self.crosshair_tip_text = ""
 
             if keypress == "escape" and not self.dialogue.enabled:
@@ -280,9 +288,9 @@ class Player(Entity):
                     return self.ray_hit.entity
 
             if setting.developer_mode:
-                if getHitData():
-                    self.hit_text2 = getHitData().keys["type"] if getHitData().keys["type"] else "None"
-                    self.hit_text = getHitData().id if getHitData().id else "None"
+                # if getHitData():
+                #     self.hit_text2 = getHitData().keys["type"] if getHitData().keys["type"] else "None"
+                #     self.hit_text = getHitData().id if getHitData().id else "None"
                     self.debug_text.text = "POS X: " + str(round(self.x, 2)) + \
                                            "\nPOS Y: " + str(round(self.y, 2)) + \
                                            "\nPOS Z: " + str(round(self.z, 2)) + \
@@ -290,9 +298,9 @@ class Player(Entity):
                                            "\nROT Y: " + str(round(self.rotation.y, 2)) + \
                                            "\nROT Z: " + str(round(self.camera_pivot.rotation.z, 2)) + \
                                            "\n\nVEL X: " + str(round(mouse.velocity[0], 2)) + \
-                                           "\nVEL Y: " + str(round(mouse.velocity[1], 2)) + \
-                                           "\n\nHIT: " + str(self.hit_text) + \
-                                           "\n\nHIT: " + str(self.hit_text2)
+                                           "\nVEL Y: " + str(round(mouse.velocity[1], 2))
+                                           # "\n\nHIT: " + str(self.hit_text) + \
+                                           # "\n\nHIT: " + str(self.hit_text2)
 
             # РЭЙКАСТИНГ, ВЗАИМОДЕЙСТВИЕ С МИРОМ
             if self.ray_hit.hit:
@@ -366,6 +374,7 @@ class Player(Entity):
                 self.y -= min(self.air_time, ray.distance - .05) * time.dt * 100
                 self.air_time += time.dt * .25 * self.gravity
 
+
 class Trigger(Entity):
     def __init__(self, **kwargs):
         super().__init__()
@@ -413,7 +422,6 @@ class Trigger(Entity):
                 set_current_status(self.get_trigger_id())
 
                 if get_current_status() == "door_enter":
-                    add_itm("light")
                     if check_itm("pistol"):
                         # pre-render anim
                         video_sound.play()
@@ -426,33 +434,33 @@ class Trigger(Entity):
 
                     if not check_itm("light"):
                         get_player().msg.setText("Включите свет")
-                #
-                # if get_current_status() == "cass":
-                #     if check_itm("light"):
-                #         get_player().msg.setText("Соберите и выбросите мусор")
-                #
-                #     if check_itm("pistol"):
-                #         get_player().msg.setText("Проверьте кто это был")
-                #
-                # if get_current_status() == "trash":
-                #     if check_itm("trash_1") and self.check_itm("trash_out"):
-                #         get_player().msg.setText("Включите телевизор")
-                #
-                # if get_current_status() == "tv":
-                #     if check_itm("trash_1") and check_itm("trash_out"):
-                #         if check_itm("tv"):
-                #             # врубить тв
-                #             get_player().msg.setText("проверьте товар")
-                #
-                # if get_current_status() == "stash":
-                #     if check_itm("trash_out") and check_itm("tv"):
-                #         if check_itm("tovar"):
-                #             # отрубить звук тв
-                #             get_player().msg.setText("Проверьте окно")
-                #             # пугающий звук у окна, упавший товар
-                #             hiss.play()
-                #             # закрыть выход
-                #             Entity()
+
+                if get_current_status() == "cass":
+                    if not check_itm("trash"):
+                        get_player().msg.setText("Соберите и выбросите мусор")
+
+                    if check_itm("pistol"):
+                        get_player().msg.setText("Проверьте кто это был")
+
+                if get_current_status() == "trash":
+                    if check_itm("trash_1") and self.check_itm("trash_out"):
+                        get_player().msg.setText("Включите телевизор")
+
+                if get_current_status() == "tv":
+                    if check_itm("trash_1") and check_itm("trash_out"):
+                        if check_itm("tv"):
+                            # врубить тв
+                            get_player().msg.setText("проверьте товар")
+
+                if get_current_status() == "stash":
+                    if check_itm("trash_out") and check_itm("tv"):
+                        if check_itm("tovar"):
+                            # отрубить звук тв
+                            get_player().msg.setText("Проверьте окно")
+                            # пугающий звук у окна, упавший товар
+                            hiss.play()
+                            # закрыть выход
+                            Entity()
 
                 if get_current_status() == "window":
                     # if self.check_itm("tovar"):
@@ -480,38 +488,39 @@ class Trigger(Entity):
             if other in self.triggerers and hasattr(self, 'on_trigger_stay'):
                 self.on_trigger_stay()
 
-# TODO audio change volume by distance
-class Audio3d(Audio):
-    def __init__(self, sound_file_name, max_distance=10, **kwargs):
-        super().__init__(sound_file_name, autoplay=False, **kwargs)
-        self.max_distance = max_distance
-
-    def update(self):
-        self.balance = math.sin((self.world_position.xz - self.player.world_position.xz).normalized().signedAngleRad(self.player.forward.xz) / 2)
-        self.volume = 1 - min(distance(self.world_position, self.player.world_position) / self.max_distance, 1)
-        print(self.balance," | ",self.volume)
-
-# TODO anim
-class Anim(Entity):
-    def __init__(self, anim_id, **kwargs):
-        super().__init__(scale=17)
-        self.actor = Actor(anim_folder + anims_id + ".gltf")
-        self.actor.reparent_to(self)
-
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def get_anim_id(self):
-        return self.anim_id
-
-    def play_anim(self, anim):
-        self.actor.play(anim)
-
-    def isPlaying(self, anim):
-        myAnimControl = self.actor.getAnimControl(anim)
-        return myAnimControl.isPlaying()
+# # TODO audio change volume by distance
+# class Audio3d(Audio):
+#     def __init__(self, sound_file_name, max_distance=10, **kwargs):
+#         super().__init__(sound_file_name, autoplay=False, **kwargs)
+#         self.max_distance = max_distance
+#
+#     def update(self):
+#         self.balance = math.sin((self.world_position.xz - self.player.world_position.xz).normalized().signedAngleRad(self.player.forward.xz) / 2)
+#         self.volume = 1 - min(distance(self.world_position, self.player.world_position) / self.max_distance, 1)
+#         print(self.balance," | ",self.volume)
+#
+# # TODO anim
+# class Anim(Entity):
+#     def __init__(self, anim_id, **kwargs):
+#         super().__init__(scale=17)
+#         self.actor = Actor(anim_folder + anims_id + ".gltf")
+#         self.actor.reparent_to(self)
+#
+#         for key, value in kwargs.items():
+#             setattr(self, key, value)
+#
+#     def get_anim_id(self):
+#         return self.anim_id
+#
+#     def play_anim(self, anim):
+#         self.actor.play(anim)
+#
+#     def isPlaying(self, anim):
+#         myAnimControl = self.actor.getAnimControl(anim)
+#         return myAnimControl.isPlaying()
 
 # Главный класс игрового процесса
+
 class Gameplay(Entity):
     def __init__(self, level=None, **kwargs):
         super().__init__()
@@ -530,9 +539,8 @@ class Gameplay(Entity):
         invoke(self.player.load_location, player_creature["start_level"] if level is None else level,delay=0.00001)
         self.current_level = Level(self.player, level_id=player_creature["start_level"] if level is None else level)
 
-        for i in game_session.current_level.level_objects:
-            pprint.pprint(i)
-
+        # for i in game_session.current_level.level_objects:
+        #     pprint.pprint(i)
         set_player_to_level_spawn_point()
 
         gameplay = True
@@ -671,8 +679,8 @@ class LevelObject(Entity):
     def __init__(self, **kwargs):
         super().__init__()
         # ключ идентификатор
-        #self.id = None
-        #self.name = None
+        # self.id = None
+        # self.name = None
         # словарь ключей из файла с уровнем "ключ": значение
         self.keys = {}
 

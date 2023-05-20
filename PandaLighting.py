@@ -15,7 +15,7 @@ class Light(Entity):
         self._light.setColor(value)
 
 class PointLight(Light):
-    def __init__(self, distance=1, color=(1,1,1,1), **kwargs):
+    def __init__(self, distance=1, color=(0.05,0.05,0.05,0.05), **kwargs):
         super().__init__()
         self.keys = None
         self._light = PandaPointLight('point_light')
@@ -31,5 +31,8 @@ class PointLight(Light):
     def get_light_id(self):
         return self.light_id
 
-    def color_set(self, color):
+    def color_off(self, off):
+        color = Vec4(0.3,0.3,0.3,0.3)
+        if off:
+            color = color * 0
         return self._light.setColor(color)

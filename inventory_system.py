@@ -19,9 +19,16 @@ class Inventory(Entity):
     def add_item(self, item_id):
         if item_id in i_db:
             self.items_in_inventory.append(item_id)
-            print("Inventory: Подобрал [{0}]".format(item_id))
+            print("Подобрал [{0}]".format(item_id))
         else:
-            print("Inventory: Ошибка Item ID - [{0}]! объект не найден в data/items.json!".format(item_id))
+            print("Ошибка Item ID - [{0}]! объект не найден!".format(item_id))
+
+    def del_item(self, item_id):
+        if item_id in i_db:
+            self.items_in_inventory.remove(item_id)
+            print("Выкинул [{0}]".format(item_id))
+        else:
+            print("Ошибка  Item ID - [{0}]! объект не найден".format(item_id))
 
     def has_item(self, item_id):
         if self.items_in_inventory:
