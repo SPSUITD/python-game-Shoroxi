@@ -34,10 +34,16 @@ class GameOverScreen(Entity):
     def input(self,key):
         if self.enabled:
             if key == "escape" or key == "enter":
+                destroy(game.game_session)
                 scene.clear()
+                game.pause = False
+
                 camera.overlay.color = color.black
                 loading = Text("Загрузка", origin=(0, 0), color=color.orange, always_on_top=True)
+
                 invoke(main_menu.MainMenu, delay=0.0001)
+                destroy(self)
+
                 destroy(loading)
                 invoke(setattr, camera.overlay, 'color', color.clear, delay=1)
                 application.paused = False
@@ -114,17 +120,21 @@ class GamePause(Entity):
                     self.disable()
 
                 if self.selected_element == len(self.menu_punkts) - 1:
-                    scene.clear() if not scene.isEmpty() else None
+                    destroy(game.game_session.enemy)
+
+                    destroy(game.game_session.player)
+
                     destroy(game.game_session)
 
-                    camera.overlay.color = color.black
+                    scene.clear()
                     game.pause = False
 
-                    loading = Text("loading", origin=(0, 0), color=color.orange, always_on_top=True)
-                    # loading_icon = Animation(ui_folder + "some", fps=12, origin=(.5, 0), x=-.1,
-                    #                          always_on_top=True,
-                    #                          parent=camera.ui, scale=0.03)
+                    camera.overlay.color = color.black
+                    loading = Text("Загрузка", origin=(0, 0), color=color.orange, always_on_top=True)
+
                     invoke(main_menu.MainMenu, delay=0.0001)
-                    destroy(loading, delay=2)
-                    # destroy(loading_icon, delay=2)
-                    invoke(setattr, camera.overlay, 'color', color.clear, delay=2)
+                    destroy(self)
+
+                    destroy(loading)
+                    invoke(setattr, camera.overlay, 'color', color.clear, delay=1)
+                    application.paused = False

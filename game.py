@@ -157,13 +157,13 @@ class Player(Entity):
         # self.torch = Entity(model='cube', color=color.orange, scale=(0.1, 0.1, 0.3), position=(0, 0, 0.5))
         # ------------ Trigger ---------------
         # ------------ DEV ---------------
-        if setting.developer_mode:
-            self.debug_info_window = Entity(parent=camera.ui, model=Quad(radius=.03), color=color.rgba(10, 10, 10, 200),
-                                            origin=(-.5, .5),
-                                            position=Vec2(window.top_left.x + 0.02, window.top_left.y - 0.09),
-                                            scale=Vec2(0.3, 0.35))
-            self.debug_text = Text(parent=camera.ui, text="null", color=setting.color_orange, origin=(-.5, .5),
-                                   position=(window.top_left.x + 0.03, window.top_left.y - 0.095, -0.003))
+        # if setting.developer_mode:
+        #     self.debug_info_window = Entity(parent=camera.ui, model=Quad(radius=.03), color=color.rgba(10, 10, 10, 200),
+        #                                     origin=(-.5, .5),
+        #                                     position=Vec2(window.top_left.x + 0.02, window.top_left.y - 0.09),
+        #                                     scale=Vec2(0.3, 0.35))
+        #     self.debug_text = Text(parent=camera.ui, text="null", color=setting.color_orange, origin=(-.5, .5),
+        #                            position=(window.top_left.x + 0.03, window.top_left.y - 0.095, -0.003))
 
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -296,20 +296,21 @@ class Player(Entity):
                 if self.ray_hit.hit:
                     return self.ray_hit.entity
 
-            if setting.developer_mode:
-                # if getHitData():
-                #     self.hit_text2 = getHitData().keys["type"] if getHitData().keys["type"] else "None"
-                #     self.hit_text = getHitData().id if getHitData().id else "None"
-                    self.debug_text.text = "POS X: " + str(round(self.x, 2)) + \
-                                           "\nPOS Y: " + str(round(self.y, 2)) + \
-                                           "\nPOS Z: " + str(round(self.z, 2)) + \
-                                           "\n\nROT X: " + str(round(self.camera_pivot.rotation.x, 2)) + \
-                                           "\nROT Y: " + str(round(self.rotation.y, 2)) + \
-                                           "\nROT Z: " + str(round(self.camera_pivot.rotation.z, 2)) + \
-                                           "\n\nVEL X: " + str(round(mouse.velocity[0], 2)) + \
-                                           "\nVEL Y: " + str(round(mouse.velocity[1], 2))
-                                           # "\n\nHIT: " + str(self.hit_text) + \
-                                           # "\n\nHIT: " + str(self.hit_text2)
+            # ------------ DEV ---------------
+            # if setting.developer_mode:
+            #     # if getHitData():
+            #     #     self.hit_text2 = getHitData().keys["type"] if getHitData().keys["type"] else "None"
+            #     #     self.hit_text = getHitData().id if getHitData().id else "None"
+            #         self.debug_text.text = "POS X: " + str(round(self.x, 2)) + \
+            #                                "\nPOS Y: " + str(round(self.y, 2)) + \
+            #                                "\nPOS Z: " + str(round(self.z, 2)) + \
+            #                                "\n\nROT X: " + str(round(self.camera_pivot.rotation.x, 2)) + \
+            #                                "\nROT Y: " + str(round(self.rotation.y, 2)) + \
+            #                                "\nROT Z: " + str(round(self.camera_pivot.rotation.z, 2)) + \
+            #                                "\n\nVEL X: " + str(round(mouse.velocity[0], 2)) + \
+            #                                "\nVEL Y: " + str(round(mouse.velocity[1], 2))
+            #                                # "\n\nHIT: " + str(self.hit_text) + \
+            #                                # "\n\nHIT: " + str(self.hit_text2)
 
             # РЭЙКАСТИНГ, ВЗАИМОДЕЙСТВИЕ С МИРОМ
             if self.ray_hit.hit:

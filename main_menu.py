@@ -4,6 +4,7 @@ import my_json
 import main as gm
 import os.path
 import ui
+import ursina
 
 scene = None
 ui_folder = "assets/ui/"
@@ -15,9 +16,10 @@ bg_main_menu = "bg_test.png"
 class MainMenu(Entity):
 
     def __init__(self):
-        super().__init__(parent=camera.ui, z=-0.001)
+        super().__init__(parent=camera.ui)
         global scene
         scene = self
+
         self.menu_buttons_counter = 0
         self.menu_buttons_list = [
             "Новая игра",
@@ -33,6 +35,8 @@ class MainMenu(Entity):
                                color=setting.color_orange)
 
     def StartNewGame(self,level=None):
+        # ursina.scene.set_up()
+
         camera.overlay.color = color.black
         loading = Text("Загрузка", origin=(0, 0), color=setting.color_orange, always_on_top=True)
         destroy(loading, delay=2)
@@ -41,7 +45,6 @@ class MainMenu(Entity):
         destroy(self)
 
         invoke(setattr, camera.overlay, 'color', color.clear, delay=2)
-        self.ignore_input = False
 
     def input(self, key):
         if self.main_menu.enabled:
@@ -70,10 +73,8 @@ class MainMenu(Entity):
 
 class Options(Entity):
     def __init__(self):
-        super().__init__(z=0.002)
-        global scene
+        super().__init__()
 
-        # -----------------------
         self.click_sound = Audio(sound_folder + "click", autoplay=False, loop=False)
         self.options = my_json.read("assets/options")
         self.options_menu = Entity(parent=camera.ui, enabled=False)
@@ -126,7 +127,6 @@ class Options(Entity):
                                x=self.option_punkts_list[self.option_selector].x - 0.05,
                                scale=.1,
                                origin=(-.5, 0))
-        self.message = None
         self.tip_bottom = Text(
             dedent("Здесь могла быть подсказка").strip(),
             parent=self.options_menu, y=-0.40, x=-0.7, origin=(-.5, 0), color=color.dark_gray, size=4)
