@@ -9,9 +9,8 @@ scene = None
 ui_folder = "assets/ui/"
 sound_folder = "assets/sounds/"
 
-cursor = ui_folder + "set.ico"
-bg_options = "/bg_test.png"
-bg_mm = "bg_test.png"
+bg_options = "bg_test.png"
+bg_main_menu = "bg_test.png"
 
 class MainMenu(Entity):
 
@@ -28,20 +27,21 @@ class MainMenu(Entity):
         self.click_sound = Audio(sound_folder + "click", autoplay=False, loop=False)
         self.main_menu = Entity(parent=self, enabled=True)
         Entity(parent=self.main_menu, model="quad", color=rgb(2, 2, 0), scale=2)
-        Sprite(parent=self.main_menu, texture=bg_mm, y=0.1, scale=0.5)
+        Sprite(parent=self.main_menu, texture=bg_main_menu, y=0.1, scale=0.5)
         self.menu_punkt = Text(parent=self.main_menu, text="← {0} →".format(self.menu_buttons_list[self.menu_buttons_counter]),
                                origin=(0, 0), y=-0.4,
                                color=setting.color_orange)
 
     def StartNewGame(self,level=None):
         camera.overlay.color = color.black
-        loading = Text("loading", origin=(0, 0), color=setting.color_orange, always_on_top=True)
+        loading = Text("Загрузка", origin=(0, 0), color=setting.color_orange, always_on_top=True)
         destroy(loading, delay=2)
+
         invoke(gm.Gameplay,level=level, delay=1)
         destroy(self)
+
         invoke(setattr, camera.overlay, 'color', color.clear, delay=2)
         self.ignore_input = False
-        #invoke(story.show_intro_text,delay=2)
 
     def input(self, key):
         if self.main_menu.enabled:
@@ -121,13 +121,14 @@ class Options(Entity):
         self.option_punkts_list.append(self.autodetect_punkt)
         self.option_punkts_list.append(self.apply_punkt)
 
-        self.selector = Sprite(cursor, parent=self.options_menu,
+        self.selector = Sprite(texture="arrow_right", parent=self.options_menu,
                                y=self.option_punkts_list[self.option_selector].y,
-                               x=self.option_punkts_list[self.option_selector].x - 0.05, scale=.01,
+                               x=self.option_punkts_list[self.option_selector].x - 0.05,
+                               scale=.1,
                                origin=(-.5, 0))
         self.message = None
         self.tip_bottom = Text(
-            dedent("control.tip").strip(),
+            dedent("Здесь могла быть подсказка").strip(),
             parent=self.options_menu, y=-0.40, x=-0.7, origin=(-.5, 0), color=color.dark_gray, size=4)
 
     def input(self, key):
@@ -143,26 +144,14 @@ class Options(Entity):
                 self.option_selector -= 1
             else:
                 self.option_selector = len(self.option_punkts_list) - 1
-
-            if self.option_selector == len(self.option_punkts_list) - 1:
-                self.selector.position = (self.option_punkts_list[self.option_selector].x - 0.15,
-                                          self.option_punkts_list[self.option_selector].y)
-            else:
-                self.selector.position = (self.option_punkts_list[self.option_selector].x - 0.05,
-                                          self.option_punkts_list[self.option_selector].y)
+            self.selector.y = self.option_punkts_list[self.option_selector].y
 
         if key == "s" or key == "down arrow":
             if self.option_selector < len(self.option_punkts_list) - 1:
                 self.option_selector += 1
             else:
                 self.option_selector = 0
-
-            if self.option_selector == len(self.option_punkts_list) - 1:
-                self.selector.position = (self.option_punkts_list[self.option_selector].x - 0.15,
-                                          self.option_punkts_list[self.option_selector].y)
-            else:
-                self.selector.position = (self.option_punkts_list[self.option_selector].x - 0.05,
-                                          self.option_punkts_list[self.option_selector].y)
+            self.selector.y = self.option_punkts_list[self.option_selector].y
 
         # ------------ Values ---------------
 

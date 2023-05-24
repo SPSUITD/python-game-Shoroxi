@@ -4,13 +4,12 @@ import game
 import main_menu
 
 ui_folder = "assets/ui/"
-message_box = ui_folder+"message_box.png"
 
 class UIText(Text):
     def hideHUD(self):
         return color.rgba(1,1,1,0) if not setting.show_hud else color.rgba(1,1,1,1)
 
-    def __init__(self,text="",origin=(0,0),offset=(0.001,0.001), color=color.white,**kwargs):
+    def __init__(self,text="",origin=(0,0), offset=(0.001,0.001), color=color.white,**kwargs):
         super().__init__(parent=camera.ui, origin=origin)
         self.shadow = True
 
@@ -23,38 +22,109 @@ class UIText(Text):
     def setText(self,text):
         self.origin_text.text = dedent(text).strip()
 
-# MESSAGE BOX
-class MessageBox(Entity):
-    def __init__(self, title, message, type="info", **kwargs):
-        super().__init__(parent=camera.ui,z=-999)
-        self.ignored_input_entity = None
-        Entity(parent=self, model="quad", color=color.rgba(2,2,0,200), scale = (1*window.aspect_ratio,1),position=(0,0))
-        Sprite(message_box,parent=self,scale=0.25, position=(0, 0))
+class GameOverScreen(Entity):
+    def __init__(self,**kwargs):
+        super().__init__(parent=camera.ui, ignore_paused=True)
+        Entity(parent=self, model="quad", color=color.rgba(2, 2, 0, 255), scale=window.size, position=(0, 0))
+        Text("gameover",parent=self,origin=(0,0))
 
-        self.title = UIText(title,shadow=True, parent=self,color=setting.color_orange,origin=(-.5,0),position=(-.32,0.168))
-        self.close = Button("OK",position=(0,-0.15),scale=(0.1,0.04),parent=self)
-        self.close.on_click = self.close_window
-        self.message = Text(parent=self, text=dedent(message).strip(), origin=(-.5, .5),wordwrap=33,
-                            position=(-.3,0.14)).set_scissor(Vec3(-1,-0.3,0), Vec3(1,1,0))
+        for key, value in kwargs.items ():
+            setattr(self, key, value)
 
-        self.msg_box_type = type
-        game.pause = True
-        # game.get_player().mouse_control = False
-        mouse.locked = False
+    def input(self,key):
+        if self.enabled:
+            if key == "escape" or key == "enter":
+                scene.clear()
+                camera.overlay.color = color.black
+                loading = Text("Загрузка", origin=(0, 0), color=color.orange, always_on_top=True)
+                invoke(main_menu.MainMenu, delay=0.0001)
+                destroy(loading)
+                invoke(setattr, camera.overlay, 'color', color.clear, delay=1)
+                application.paused = False
+
+class GamePause(Entity):
+    def __init__(self, **kwargs):
+        super().__init__()
+
+        self.selected_element = 0
+        self.menu_punkts = [
+            Text("Продолжить", color=color.orange),
+            Text("Вернуться в главное меню", color=color.orange)
+        ]
+
+        self.parent = camera.ui
+        Entity(parent=self, model="quad", color=rgb(2, 2, 0), scale=window.size)
+        self.frame = Sprite(ui_folder + "Pause texture", parent=self, scale=0.222,z=-0.001)
+        self.click_sound = Audio("assets/sounds/click", autoplay=False, loop=False)
+
+        Text("Menu Title", parent=self, y=0.35, x=0, origin=(0, 0))
+        Text("Pause Title", parent=self, y=0.30, x=0, origin=(0, 0))
+        self.tip_bottom = Text(dedent("Здесь могла быть подсказка").strip(), parent=self, y=-0.40, x=-0.7,z=-0.001, origin=(-.5, 0), color=color.dark_gray, size=4)
+
+        if self.menu_punkts:
+            offset = 0.25
+            spacing = .01
+            height = 0.01 - spacing
+            if isinstance(self.menu_punkts, dict):
+                self.menu_punkts = self.menu_punkts.values()
+
+            for p in self.menu_punkts:
+                if isinstance(p, Text):
+                    p.x -= .045
+                    p.y = offset
+                    p.parent = self
+                    p.origin = (-.5, 0)
+                    height += len(p.lines) / 100 * 7
+                    p.y -= height
+                    p.z = -0.01
+
+            self.selector = Sprite(texture="arrow_right", parent=self,
+                                   y=self.menu_punkts[self.selected_element].y,
+                                   x=self.menu_punkts[self.selected_element].x - 0.05,
+                                   scale=.21,
+                                   origin=(-.5, 0))
 
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def close_window(self):
-        game.pause = False
-        # game.get_player().mouse_control = True
-        mouse.locked = True
+    def input(self, key):
 
-        if self.ignored_input_entity is not None:
-            self.ignored_input_entity.ignore_input = False
+        if game.pause and self.enabled:
+            if key == "escape":
+                game.pause = False
+                self.disable()
 
-        invoke(destroy, self, delay=0.0001)
+            if key == "down arrow" or key == "s":
+                self.click_sound.play()
+                self.selected_element += 1
+                if self.selected_element > len(self.menu_punkts) - 1:
+                    self.selected_element = 0
+                self.selector.y = self.menu_punkts[self.selected_element].y
 
-    def input(self,key):
-        if key == "enter" or key == "escape":
-            self.close_window()
+            if key == "up arrow" or key == "w":
+                self.click_sound.play()
+                self.selected_element -= 1
+                if self.selected_element < 0:
+                    self.selected_element = len(self.menu_punkts) - 1
+                self.selector.y = self.menu_punkts[self.selected_element].y
+
+            if key == "enter":
+                if self.selected_element == 0:
+                    game.pause = False
+                    self.disable()
+
+                if self.selected_element == len(self.menu_punkts) - 1:
+                    scene.clear() if not scene.isEmpty() else None
+                    destroy(game.game_session)
+
+                    camera.overlay.color = color.black
+                    game.pause = False
+
+                    loading = Text("loading", origin=(0, 0), color=color.orange, always_on_top=True)
+                    # loading_icon = Animation(ui_folder + "some", fps=12, origin=(.5, 0), x=-.1,
+                    #                          always_on_top=True,
+                    #                          parent=camera.ui, scale=0.03)
+                    invoke(main_menu.MainMenu, delay=0.0001)
+                    destroy(loading, delay=2)
+                    # destroy(loading_icon, delay=2)
+                    invoke(setattr, camera.overlay, 'color', color.clear, delay=2)
