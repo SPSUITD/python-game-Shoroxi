@@ -33,9 +33,9 @@
       "radius": 15
     }, {
       "id": "enemy",
-      "parent": "actor",
       "model": "sphere",
-      "radius": 15
+      "radius": 15,
+      "position": [-38, -38, 50]
     }
   ],
   "sound": [
