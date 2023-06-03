@@ -1,6 +1,6 @@
 {
   "start_level": "ai_test",
   "loot": [],
-  "start_items": [],
+  "start_items": ["pistol"],
   "_comment": "тут может быть хп или что то типа того"
 }

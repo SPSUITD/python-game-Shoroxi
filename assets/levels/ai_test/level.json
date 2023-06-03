@@ -35,7 +35,7 @@
       "id": "enemy",
       "model": "sphere",
       "radius": 15,
-      "position": [-38, -38, 50]
+      "position": [-38, -38, -100]
     }
   ],
   "sound": [
@@ -49,7 +49,16 @@
   "light": [
     {
       "type": "ambient",
-      "color": [1, 1, 3]
+      "color": [6, 6, 6]
+    },    {
+      "type": "direction",
+      "parent": "self",
+      "position": [0, 300, 0],
+      "rotation": [0, 0, 0],
+      "distance": 1,
+      "attenuation": [0.01,0.0001,0.01],
+      "shadows": true,
+      "color": [20, 20, 34]
     },
     {
       "type": "point",
@@ -127,7 +136,7 @@
       "type": "model",
       "id": "sky",
       "model": "assets/levels/ai_test/models/sky",
-      "texture": "None",
+      "texture": "assets/levels/ai_test/txt/sky",
       "position": [0, -40, 0],
        "scale": 0.5
     },

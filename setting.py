@@ -1,4 +1,3 @@
-# defolt set
 from ursina import color
 title = "BarGame"
 version = 0.5

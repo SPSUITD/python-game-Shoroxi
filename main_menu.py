@@ -35,15 +35,11 @@ class MainMenu(Entity):
                                color=setting.color_orange)
 
     def StartNewGame(self,level=None):
-        # ursina.scene.set_up()
-
         camera.overlay.color = color.black
         loading = Text("Загрузка", origin=(0, 0), color=setting.color_orange, always_on_top=True)
         destroy(loading, delay=2)
-
         invoke(gm.Gameplay,level=level, delay=1)
         destroy(self)
-
         invoke(setattr, camera.overlay, 'color', color.clear, delay=2)
 
     def input(self, key):
@@ -54,14 +50,12 @@ class MainMenu(Entity):
                     self.menu_buttons_counter -= 1
                 else:
                     self.menu_buttons_counter = 2
-
             if key == "d" or key == "right arrow":
                 self.click_sound.play()
                 if self.menu_buttons_counter < 2:
                     self.menu_buttons_counter += 1
                 else:
                     self.menu_buttons_counter = 0
-
             if key == "enter":
                 if self.menu_buttons_counter == 0:
                     self.StartNewGame()
@@ -136,25 +130,20 @@ class Options(Entity):
             scene.main_menu.enable()
             self.option_selector = 0
             self.options_menu.disable()
-
         # ------------ Selector ---------------
-
         if key == "w" or key == "up arrow":
             if self.option_selector > 0:
                 self.option_selector -= 1
             else:
                 self.option_selector = len(self.option_punkts_list) - 1
             self.selector.y = self.option_punkts_list[self.option_selector].y
-
         if key == "s" or key == "down arrow":
             if self.option_selector < len(self.option_punkts_list) - 1:
                 self.option_selector += 1
             else:
                 self.option_selector = 0
             self.selector.y = self.option_punkts_list[self.option_selector].y
-
         # ------------ Values ---------------
-
         if self.enabled and key == "d" or key == "right arrow":
             self.click_sound.play()
             if self.option_selector == 0:
@@ -164,7 +153,6 @@ class Options(Entity):
                     self.value_selector = 0
                 self.sens = setting.mouse_sensitivity[self.value_selector]
                 self.lang_text.setText("[{0}]".format(self.sens))
-
         if self.enabled and key == "a" or key == "left arrow":
             self.click_sound.play()
             if self.option_selector == 0:
@@ -174,8 +162,8 @@ class Options(Entity):
                     self.value_selector = 2
                 self.sens = setting.mouse_sensitivity[self.value_selector]
                 self.lang_text.setText("[{0}]".format(self.sens))
-
-        if self.enabled and key == "enter" or key == "d" or key == "a" or key == "right arrow" or key == "left arrow":
+        if self.enabled and key == "enter" or key == "d" or key == "a" \
+                or key == "right arrow" or key == "left arrow":
             self.click_sound.play()
             if self.option_selector == 1:
                 self.fps_show_mode = not self.fps_show_mode

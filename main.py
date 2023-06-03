@@ -45,19 +45,19 @@ if __name__ == "__main__":
     window.color = color.black
     text.default_resolution = 720 * Text.size
     application.development_mode = False
-
+    from shaders.camera_shader import pixel
+    camera.shader = pixel
+    camera.set_shader_input("blur_size", 0.04)
     # Filters
-    Texture.default_filtering = False
-    filters = CommonFilters(app.win, app.cam)
+    # Texture.default_filtering = False
+    # filters = CommonFilters(app.win, app.cam)
+    #
+    # filters.setCartoonInk(separation=0.8, color=(0,0,0,0.5))
+    # filters.setAmbientOcclusion(radius=0.05,amount=1,strength=0.006)
+    # filters.setMSAA(8)
+    # filters.setSrgbEncode()
+    # filters.setHighDynamicRange()
 
-    filters.setCartoonInk(separation=0.8, color=(0,0,0,0.5))
-    filters.setAmbientOcclusion(radius=0.05,amount=1,strength=0.006)
-
-    filters.setSrgbEncode()
-    filters.setHighDynamicRange()
-
-    # Anti-aliasing
-    filters.set_msaa(samples=8)
 
     # scene = Gameplay()
     scene = main_menu.MainMenu()
