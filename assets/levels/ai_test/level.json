@@ -1,0 +1,229 @@
+{
+  "weather_color": [74, 116, 159],
+  "trigger": [
+    {
+      "id": "window",
+      "model": "sphere",
+      "position": [45.68,-38.75,171.37],
+      "radius": 10
+    },    {
+      "id": "cass",
+      "model": "sphere",
+      "position": [-120.901, -35, 296],
+      "radius": 45
+    },   {
+      "id": "door_enter",
+      "model": "sphere",
+      "position": [-41.5856, -35, 130],
+      "radius": 20
+    }, {
+      "id": "trash",
+      "model": "sphere",
+      "position": [115.67, -35, 251],
+      "radius": 40
+    }, {
+      "id": "stash",
+      "model": "sphere",
+      "position": [34, -38, 223],
+      "radius": 7
+    }, {
+      "id": "tv",
+      "model": "sphere",
+      "position": [-108.67, -38, 220],
+      "radius": 15
+    }, {
+      "id": "enemy",
+      "model": "sphere",
+      "radius": 15,
+      "position": [-38, -38, -100]
+    }
+  ],
+  "sound": [
+    {
+      "type": "amb",
+      "position": [1, 2, 1],
+      "distance": 0.05,
+      "volume": 1
+    }
+  ],
+  "light": [
+    {
+      "type": "ambient",
+      "color": [6, 6, 6]
+    },    {
+      "type": "direction",
+      "parent": "self",
+      "position": [0, 300, 0],
+      "rotation": [0, 0, 0],
+      "distance": 1,
+      "attenuation": [0.01,0.0001,0.01],
+      "shadows": true,
+      "color": [20, 20, 34]
+    },
+    {
+      "type": "point",
+      "parent": "self",
+      "position": [116, 18, 274],
+      "rotation": [0, 90, 0],
+      "distance": 0.07,
+      "shadows": false,
+      "color": [25, 20, 20]
+    },
+    {
+      "type": "point",
+      "parent": "self",
+      "position": [37, 30, 307],
+      "rotation": [0, 90, 0],
+      "distance": 0.05,
+      "shadows": false,
+      "color": [0, 0, 0]
+    },
+    {
+      "type": "point",
+      "parent": "self",
+      "position": [5, 30, 255],
+      "rotation": [0, 90, 0],
+      "distance": 0.05,
+      "shadows": false,
+      "color": [0, 0, 0]
+    },
+    {
+      "type": "point",
+      "parent": "self",
+      "position": [37, 30, 221],
+      "rotation": [0, 90, 0],
+      "distance": 0.05,
+      "shadows": true,
+      "color": [0, 0, 0]
+    },
+    {
+      "type": "point",
+      "parent": "self",
+      "position": [-54, 30, 255],
+      "rotation": [0, 90, 0],
+      "distance": 0.05,
+      "shadows": false,
+      "color": [0, 0, 0]
+    },    {
+      "type": "point",
+      "parent": "self",
+      "position": [-126, 30, 297],
+      "rotation": [0, 90, 0],
+      "distance": 0.05,
+      "shadows": false,
+      "color": [0, 0, 0]
+    },
+   {
+      "type": "point",
+      "parent": "self",
+      "position": [108, 15, 278.77],
+      "rotation": [0, 90, 0],
+      "distance": 0.03,
+      "shadows": false,
+      "color": [0, 0, 0]
+    }
+  ],
+  "models": [
+    {
+      "type": "model",
+      "id": "forest",
+      "model": "assets/levels/ai_test/models/forest",
+      "texture": "None",
+      "position": [0, -40, 0],
+       "scale": 0.5
+    },
+    {
+      "type": "model",
+      "id": "sky",
+      "model": "assets/levels/ai_test/models/sky",
+      "texture": "assets/levels/ai_test/txt/sky",
+      "position": [0, -40, 0],
+       "scale": 0.5
+    },
+    {
+      "type": "spawn_point",
+      "model": "sphere",
+      "position": [0, 30, 0]
+    },
+    {
+      "type": "model",
+      "id": "ground",
+      "model": "assets/levels/ai_test/models/gz_ground",
+      "position": [0, -40, 0],
+      "shader": true,
+      "collider": "mesh",
+      "scale": 0.5
+    },
+    {
+      "type": "collider",
+      "id": "",
+      "model": "assets/levels/ai_test/models/collider",
+      "position": [0, -40, 0],
+      "collider": "mesh",
+      "scale": 0.5
+    },
+    {
+      "type": "model",
+      "id": "glass",
+      "model": "assets/levels/ai_test/models/glass",
+      "position": [0, -40, 0],
+      "shader": true,
+      "collider": null,
+      "color":[100,100,140,180],
+      "scale": 0.5
+    },
+    {
+      "type": "model",
+      "id": "gas_station",
+      "model": "assets/levels/ai_test/models/gas_station",
+      "position": [0, -40, 0],
+      "shader": true,
+      "collider": null,
+      "scale": 0.5
+    },
+    {
+      "type": "loot",
+      "id": "light",
+      "model": "assets/levels/ai_test/loot/light",
+      "position": [0, -40, 0],
+      "collider": "box",
+      "scale": 0.5
+    },{
+      "type": "loot",
+      "id": "pistol",
+      "model": "assets/levels/ai_test/loot/pistol",
+      "position": [0, -40, 0],
+      "collider": "box",
+      "scale": 0.5
+    },{
+      "type": "loot",
+      "id": "tv",
+      "model": "assets/levels/ai_test/loot/tv",
+      "position": [0, -40, 0],
+      "collider": "box",
+      "scale": 0.5
+    },{
+      "type": "loot",
+      "id": "tovar",
+      "model": "assets/levels/ai_test/loot/tovar",
+      "position": [0, -40, 0],
+      "collider": "box",
+      "scale": 0.5
+    }, {
+      "type": "loot",
+      "id": "trash_1",
+      "model": "assets/levels/ai_test/loot/trash_floor_1",
+      "position": [0, -40, 0],
+      "collider": "box",
+      "color":[111,50,111,255],
+      "scale": 0.5
+    }, {
+      "type": "loot",
+      "id": "trash_out",
+      "model": "assets/levels/ai_test/loot/trash_out",
+      "position": [0, -40, 0],
+      "collider": "box",
+      "scale": 0.5
+    }
+  ]
+}

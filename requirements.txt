@@ -1,0 +1,5 @@
+ursina>=5.2.0
+numpy>=1.24.2
+pyogg>=0.6.14a1
+pyfmodex>=0.7.0
+panda3d~=1.10.13
